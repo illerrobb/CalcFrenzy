@@ -8,10 +8,12 @@ let gameElement = document.getElementById('game');
 let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
 
+
 let timer;
 let timeLeft = 8;
 let currentProblem;
 let currentAnswer;
+const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
 
 function startGame() {
     menuElement.style.display = 'none';
@@ -42,19 +44,11 @@ function endGame() {
     scoreElement.textContent = score;
 }
 
-function typeNumber(num) {
-    answerElement.value += num;
-}
-
-function clearAnswer() {
-    answerElement.value = '';
-}
-
 function generateProblem() {
     const operators = ['+', '-', '*'];
 
     function getRandomNumber() {
-        return Math.floor(Math.random() * (10 + level));
+        return Math.floor(Math.random() * (3 + level*0.35));
     }
 
     function getRandomOperator() {
@@ -74,7 +68,6 @@ function generateProblem() {
         const num = getRandomNumber();
         const operator = getRandomOperator();
 
-        // Decidi casualmente se mettere la parte complessa all'inizio o alla fine
         if (Math.random() < 0.5) {
             return `(${innerExpression}) ${operator} ${num}`;
         } else {
@@ -101,10 +94,12 @@ function generateProblem() {
 
     let expression;
     let result;
+    const maxResult = 10 + level * 3; // Incrementa la difficoltà con il livello
+    const minResult = level * 3;
 
     do {
-        const complexProbability = Math.min(level / 80, 0.5); // Incrementa la probabilità fino al 50%
-        const doubleComplexProbability = Math.min(level / 160, 0.3); // Incrementa la probabilità fino al 30%
+        const complexProbability = Math.min(level / 80, 0.5);
+        const doubleComplexProbability = Math.min(level / 160, 0.3);
         const randomValue = Math.random();
 
         if (randomValue < doubleComplexProbability) {
@@ -116,9 +111,9 @@ function generateProblem() {
         }
 
         result = evaluateExpression(expression);
-    } while (result < 0 || isNaN(result));
+    } while (result < 0 || isNaN(result) || result > maxResult || result >= minResult);
 
-    currentAnswer = result; // Salva la risposta corretta
+    currentAnswer = result;
     return expression;
 }
 
@@ -126,16 +121,13 @@ function displayProblem() {
     currentProblem = generateProblem();
     problemElement.textContent = `${currentProblem} = ?`;
 
-    // Rimuovi tutte le classi di animazione per resettare lo stato
     problemElement.classList.remove('drop', 'shake', 'flip');
-    void problemElement.offsetWidth; // Trigger reflow to restart animation
+    void problemElement.offsetWidth;
 
-    // Aggiungi solo l'animazione di drop
     problemElement.classList.add('drop');
 
-    const disturbanceFrequency = Math.min(level / 10, 0.5); // Incrementa la frequenza fino al 50%
+    const disturbanceFrequency = Math.min(level / 10, 0.5);
     if (Math.random() < disturbanceFrequency) {
-        setTimeout(randomlyReplaceWithEmoji, Math.random() * 5000);
         setTimeout(applyRandomDisturbance, Math.random() * 5000);
     }
 }
@@ -145,16 +137,14 @@ function submitAnswer() {
 
     if (userAnswer === currentAnswer) {
         resultElement.textContent = 'Correct!';
-        clearInterval(timer); // Interrompi il timer prima di passare alla prossima domanda
+        clearInterval(timer);
         level++;
         score += 10;
         levelElement.textContent = level;
         displayProblem();
-        resetTimer(); // Resetta il timer solo dopo aver visualizzato la nuova domanda
+        resetTimer();
     } else {
         resultElement.textContent = 'Incorrect, try again.';
-        problemElement.style.animation = 'shake 0.5s';
-        setTimeout(() => problemElement.style.animation = '', 500);
     }
     answerElement.value = '';
 }
@@ -178,7 +168,7 @@ function updateTimer() {
 
 function applyRandomDisturbance() {
     const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
-    problemElement.classList.remove('drop'); // Rimuove l'animazione di drop prima di applicare le altre
+    problemElement.classList.remove('drop');
     if (effect === 'shake') {
         problemElement.style.animation = 'shake 0.5s';
         setTimeout(() => problemElement.style.animation = '', 500);
@@ -188,22 +178,52 @@ function applyRandomDisturbance() {
     } else if (effect === 'hideKeys') {
         const keys = document.querySelectorAll('.number-button');
         const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        randomKey.style.visibility = 'hidden';
-        setTimeout(() => randomKey.style.visibility = 'visible', 1000);
+        randomKey.style.transition = 'transform 0.5s';
+        randomKey.style.transform = 'rotateY(180deg)';
+
+        setTimeout(() => {
+            randomKey.style.backgroundColor = 'lightgray';
+            randomKey.textContent = '?';
+            randomKey.style.transform = 'rotateY(0)';
+        }, 250);
+
+        setTimeout(() => {
+            randomKey.style.transition = 'transform 0.5s';
+            randomKey.style.transform = 'rotateY(180deg)';
+            setTimeout(() => {
+                randomKey.style.backgroundColor = '';
+                randomKey.textContent = randomKey.dataset.originalText || '';
+                randomKey.style.transform = 'rotateY(0)';
+                randomKey.style.transition = '';
+            }, 250);
+        }, 3000);
     } else if (effect === 'addSkullButton') {
         const keys = document.querySelectorAll('.number-button');
         const randomKey = keys[Math.floor(Math.random() * keys.length)];
         const originalText = randomKey.textContent;
 
-        randomKey.textContent = '☠️';
-        randomKey.classList.add('skull-button');
-        randomKey.onclick = endGame;
+        randomKey.dataset.originalText = originalText;
+        randomKey.style.transition = 'transform 0.5s';
+        randomKey.style.transform = 'rotateY(180deg)';
+
+        setTimeout(() => {
+            randomKey.textContent = '☠️';
+            randomKey.classList.add('skull-button');
+            randomKey.onclick = endGame;
+            randomKey.style.transform = 'rotateY(0)';
+        }, 250);
 
         setTimeout(() => {
             if (randomKey.parentNode) {
-                randomKey.textContent = originalText;
-                randomKey.classList.remove('skull-button');
-                randomKey.onclick = function() { typeNumber(originalText); };
+                randomKey.style.transition = 'transform 0.5s';
+                randomKey.style.transform = 'rotateY(180deg)';
+                setTimeout(() => {
+                    randomKey.textContent = originalText;
+                    randomKey.classList.remove('skull-button');
+                    randomKey.onclick = function() { typeNumber(originalText); };
+                    randomKey.style.transform = 'rotateY(0)';
+                    randomKey.style.transition = '';
+                }, 250);
             }
         }, 3000);
     }
@@ -214,11 +234,9 @@ function randomlyReplaceWithEmoji() {
     const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
     const elements = originalText.split(' ');
 
-    // Filtra gli elementi che non sono parentesi
     const replaceableElements = elements.filter(el => !['(', ')', '=', '?'].includes(el));
     const randomIndex = Math.floor(Math.random() * replaceableElements.length);
 
-    // Trova l'elemento effettivo nell'array originale e sostituiscilo
     const elementToReplace = replaceableElements[randomIndex];
     const elementIndex = elements.indexOf(elementToReplace);
 
@@ -228,4 +246,12 @@ function randomlyReplaceWithEmoji() {
     setTimeout(() => {
         problemElement.textContent = originalText;
     }, 1000);
+}
+
+function typeNumber(num) {
+    answerElement.value += num;
+}
+
+function clearAnswer() {
+    answerElement.value = '';
 }
