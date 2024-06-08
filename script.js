@@ -10,7 +10,7 @@ let scoreElement = document.getElementById('score');
 
 let currentProblem;
 let timer;
-let timeLeft = 8;
+let timeLeft = 10;
 let level = 1;
 let score = 0;
 
@@ -49,7 +49,7 @@ function generateProblem() {
     const operators = ['+', '-', '*'];
 
     function getRandomNumber() {
-        return Math.floor(Math.random() * (10 + level));
+        return Math.floor(Math.random() * (5 + level*0.5));
     }
 
     function getRandomOperator() {
@@ -60,10 +60,6 @@ function generateProblem() {
         let num1 = getRandomNumber();
         let num2 = getRandomNumber();
         let operator = getRandomOperator();
-
-        if (operator === '-' && num1 < num2) {
-            [num1, num2] = [num2, num1];
-        }
 
         return `${num1} ${operator} ${num2}`;
     }
@@ -81,25 +77,64 @@ function generateProblem() {
         }
     }
 
-    const complexProbability = Math.min(level / 80, 0.5); // Incrementa la probabilità fino al 50%
-    const isComplex = Math.random() < complexProbability;
+    function createDoubleComplexExpression() {
+        const innerExpression1 = createSimpleExpression();
+        const innerExpression2 = createSimpleExpression();
+        const operator = getRandomOperator();
 
-    return isComplex ? createComplexExpression() : createSimpleExpression();
+        return `(${innerExpression1}) ${operator} (${innerExpression2})`;
+    }
+
+    function evaluateExpression(expression) {
+        try {
+            const sanitizedExpression = expression.replace(/[^-()\d/*+.]/g, '');
+            return new Function(`return ${sanitizedExpression}`)();
+        } catch (error) {
+            return NaN;
+        }
+    }
+
+    let expression;
+    let result;
+
+    do {
+        const complexProbability = Math.min(level / 80, 0.5); // Incrementa la probabilità fino al 50%
+        const doubleComplexProbability = Math.min(level / 160, 0.3); // Incrementa la probabilità fino al 30%
+        const randomValue = Math.random();
+
+        if (randomValue < doubleComplexProbability) {
+            expression = createDoubleComplexExpression();
+        } else if (randomValue < complexProbability) {
+            expression = createComplexExpression();
+        } else {
+            expression = createSimpleExpression();
+        }
+
+        result = evaluateExpression(expression);
+    } while (result < 0 || isNaN(result));
+
+    return expression;
 }
 
 function displayProblem() {
     currentProblem = generateProblem();
     problemElement.textContent = `${currentProblem} = ?`;
-    problemElement.classList.remove('problem');
-    void problemElement.offsetWidth; // Trigger reflow to restart animation
-    problemElement.classList.add('problem');
 
-    const disturbanceFrequency = Math.min(level / 20, 0.5); // Incrementa la frequenza fino al 50%
+    // Rimuovi tutte le classi di animazione per resettare lo stato
+    problemElement.classList.remove('drop', 'shake', 'flip');
+    void problemElement.offsetWidth; // Trigger reflow to restart animation
+
+    // Aggiungi solo l'animazione di drop
+    problemElement.classList.add('drop');
+
+    const disturbanceFrequency = Math.min(level / 10, 0.5); // Incrementa la frequenza fino al 50%
     if (Math.random() < disturbanceFrequency) {
-        setTimeout(randomlyReplaceWithEmoji, Math.random() * 5000/level);
-        setTimeout(applyRandomDisturbance, Math.random() * 5000/level);
+        setTimeout(randomlyReplaceWithEmoji, Math.random() * 5000);
+        setTimeout(applyRandomDisturbance, Math.random() * 5000);
     }
 }
+
+
 
 function typeNumber(num) {
     answerElement.value += num;
@@ -135,6 +170,8 @@ function submitAnswer() {
         displayProblem();
         resetTimer();
     } else {
+        problemElement.style.animation = 'shake 0.3s';
+        setTimeout(() => problemElement.style.animation = '', 500);
         resultElement.textContent = 'Incorrect, try again.';
     }
     answerElement.value = '';
@@ -142,14 +179,14 @@ function submitAnswer() {
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 8;
+    timeLeft = 10;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
 }
 
 function updateTimer() {
     timeLeft--;
-    timerElement.style.width = (timeLeft / 8) * 100 + '%';
+    timerElement.style.width = (timeLeft / 10) * 100 + '%';
     if (timeLeft <= 0) {
         clearInterval(timer);
         resultElement.textContent = 'Time is up! You lost.';
@@ -161,19 +198,26 @@ function randomlyReplaceWithEmoji() {
     const originalText = problemElement.textContent;
     const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
     const elements = originalText.split(' ');
-    const randomIndex = Math.floor(Math.random() * elements.length);
 
-    if (!['=', '?'].includes(elements[randomIndex])) {
-        elements[randomIndex] = randomEmoji;
-        problemElement.textContent = elements.join(' ');
-        setTimeout(() => {
-            problemElement.textContent = originalText;
-        }, 1000);
-    }
+    // Filtra gli elementi che non sono parentesi
+    const replaceableElements = elements.filter(el => !['(', ')', '=', '?'].includes(el));
+    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
+
+    // Trova l'elemento effettivo nell'array originale e sostituiscilo
+    const elementToReplace = replaceableElements[randomIndex];
+    const elementIndex = elements.indexOf(elementToReplace);
+
+    elements[elementIndex] = randomEmoji;
+    problemElement.textContent = elements.join(' ');
+
+    setTimeout(() => {
+        problemElement.textContent = originalText;
+    }, 1000);
 }
 
 function applyRandomDisturbance() {
     const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
+    problemElement.classList.remove('drop'); // Rimuove l'animazione di drop prima di applicare le altre
     if (effect === 'shake') {
         problemElement.style.animation = 'shake 0.5s';
         setTimeout(() => problemElement.style.animation = '', 500);
