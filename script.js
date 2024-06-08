@@ -8,14 +8,10 @@ let gameElement = document.getElementById('game');
 let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
 
-let currentProblem;
 let timer;
-let timeLeft = 10;
-let level = 1;
-let score = 0;
-
-const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
-const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
+let timeLeft = 8;
+let currentProblem;
+let currentAnswer;
 
 function startGame() {
     menuElement.style.display = 'none';
@@ -40,16 +36,25 @@ function restartGame() {
 }
 
 function endGame() {
+    clearInterval(timer);
     gameElement.style.display = 'none';
     endgameElement.style.display = 'block';
     scoreElement.textContent = score;
+}
+
+function typeNumber(num) {
+    answerElement.value += num;
+}
+
+function clearAnswer() {
+    answerElement.value = '';
 }
 
 function generateProblem() {
     const operators = ['+', '-', '*'];
 
     function getRandomNumber() {
-        return Math.floor(Math.random() * (5 + level*0.5));
+        return Math.floor(Math.random() * (10 + level));
     }
 
     function getRandomOperator() {
@@ -113,6 +118,7 @@ function generateProblem() {
         result = evaluateExpression(expression);
     } while (result < 0 || isNaN(result));
 
+    currentAnswer = result; // Salva la risposta corretta
     return expression;
 }
 
@@ -134,85 +140,40 @@ function displayProblem() {
     }
 }
 
-
-
-function typeNumber(num) {
-    answerElement.value += num;
-}
-
-function clearAnswer() {
-    answerElement.value = '';
-}
-
-function evaluateExpression(expression) {
-    try {
-        const sanitizedExpression = expression.replace(/[^-()\d/*+.]/g, '');
-        return new Function(`return ${sanitizedExpression}`)();
-    } catch (error) {
-        return NaN;
-    }
-}
-
 function submitAnswer() {
     let userAnswer = parseFloat(answerElement.value);
-    let correctAnswer = evaluateExpression(currentProblem);
 
-    if (isNaN(correctAnswer)) {
-        resultElement.textContent = 'Error in calculation';
-        return;
-    }
-
-    if (userAnswer === correctAnswer) {
+    if (userAnswer === currentAnswer) {
         resultElement.textContent = 'Correct!';
+        clearInterval(timer); // Interrompi il timer prima di passare alla prossima domanda
         level++;
         score += 10;
         levelElement.textContent = level;
         displayProblem();
-        resetTimer();
+        resetTimer(); // Resetta il timer solo dopo aver visualizzato la nuova domanda
     } else {
-        problemElement.style.animation = 'shake 0.3s';
-        setTimeout(() => problemElement.style.animation = '', 500);
         resultElement.textContent = 'Incorrect, try again.';
+        problemElement.style.animation = 'shake 0.5s';
+        setTimeout(() => problemElement.style.animation = '', 500);
     }
     answerElement.value = '';
 }
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 10;
+    timeLeft = 8;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
 }
 
 function updateTimer() {
     timeLeft--;
-    timerElement.style.width = (timeLeft / 10) * 100 + '%';
+    timerElement.style.width = (timeLeft / 8) * 100 + '%';
     if (timeLeft <= 0) {
         clearInterval(timer);
         resultElement.textContent = 'Time is up! You lost.';
         setTimeout(endGame, 2000);
     }
-}
-
-function randomlyReplaceWithEmoji() {
-    const originalText = problemElement.textContent;
-    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-    const elements = originalText.split(' ');
-
-    // Filtra gli elementi che non sono parentesi
-    const replaceableElements = elements.filter(el => !['(', ')', '=', '?'].includes(el));
-    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
-
-    // Trova l'elemento effettivo nell'array originale e sostituiscilo
-    const elementToReplace = replaceableElements[randomIndex];
-    const elementIndex = elements.indexOf(elementToReplace);
-
-    elements[elementIndex] = randomEmoji;
-    problemElement.textContent = elements.join(' ');
-
-    setTimeout(() => {
-        problemElement.textContent = originalText;
-    }, 1000);
 }
 
 function applyRandomDisturbance() {
@@ -248,7 +209,23 @@ function applyRandomDisturbance() {
     }
 }
 
-// Show the menu initially
-menuElement.style.display = 'block';
-gameElement.style.display = 'none';
-endgameElement.style.display = 'none';
+function randomlyReplaceWithEmoji() {
+    const originalText = problemElement.textContent;
+    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+    const elements = originalText.split(' ');
+
+    // Filtra gli elementi che non sono parentesi
+    const replaceableElements = elements.filter(el => !['(', ')', '=', '?'].includes(el));
+    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
+
+    // Trova l'elemento effettivo nell'array originale e sostituiscilo
+    const elementToReplace = replaceableElements[randomIndex];
+    const elementIndex = elements.indexOf(elementToReplace);
+
+    elements[elementIndex] = randomEmoji;
+    problemElement.textContent = elements.join(' ');
+
+    setTimeout(() => {
+        problemElement.textContent = originalText;
+    }, 1000);
+}
