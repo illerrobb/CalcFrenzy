@@ -105,7 +105,7 @@ function generateProblem() {
 
     do {
         const complexProbability = Math.min(level / 100, 0.5);
-        const doubleComplexProbability = Math.min(level / 200, 0.1);
+        const doubleComplexProbability = Math.min(level / 1000, 0.02);
         const randomValue = Math.random();
 
         if (randomValue < doubleComplexProbability && level > 10) {
