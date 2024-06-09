@@ -14,6 +14,24 @@
             background-color: #f0f0f0;
             flex-direction: column;
         }
+        
+        .newGame-button{
+            border: none;
+            border-radius: 5px;
+            font-family: 'Arial', sans-serif;
+            font-size: 20px;
+            color: white;
+            background-color: #f0a500;
+            box-shadow: 0 5px #de702b;
+            padding: 5px 10px;
+            transition: transform 0.1s;
+        }
+        
+        .newGame-button button:active {
+          transform: translateY(4px);
+          box-shadow: 0 1px #de702b;
+        }
+        
         .game-container {
             text-align: center;
             background: white;
@@ -24,15 +42,24 @@
             position: relative;
             display: none; /* Nascondi il gioco all'inizio */
         }
+        
+        .keyboard-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .keyboard {
-            margin-top: 20px;
+            width: fit-content;
+            height: fit-content;  
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px; /* Spazio uniforme tra i pulsanti */
+            gap: 15px; /* Spazio uniforme tra i pulsanti */
             justify-content: center; /* Centra la tastiera orizzontalmente */
             justify-items: center; /* Centra i pulsanti all'interno delle celle della griglia */
             align-items: center; /* Centra i pulsanti verticalmente all'interno delle celle della griglia */
         }
+        
         .keyboard button {
             width: 70px;
             height: 70px;
@@ -41,7 +68,6 @@
             transition: transform 0.1s;
             border: none;
             border-radius: 5px;
-            box-shadow: 0 5px #5b9e9a;
             font-family: 'Arial', sans-serif;
             display: flex;
             align-items: center;
@@ -50,13 +76,23 @@
         }
         .number-button {
             background-color: #76c7c0;
+            box-shadow: 0 5px #5b9e9a;
+
         }
         .action-button {
             background-color: #f0a500;
+            box-shadow: 0 5px #de702b;
         }
         .skull-button {
-            background-color: red;
+            background-color: #f44336;
+            box-shadow: 0 5px #a11414;
         }
+        
+        .hideKeys-button {
+            background-color: #c6c6c6;
+            box-shadow: 0 5px #929292;          
+        }
+        
         .keyboard button:active {
             transform: translateY(4px);
             box-shadow: 0 1px #5b9e9a;
@@ -130,7 +166,7 @@
 <body>
     <div id="menu">
         <h1>Math Challenge</h1>
-        <button onclick="startGame()">Start Game</button>
+        <button class="newGame-button" onclick="startGame()">Start Game</button>
     </div>
     <div class="game-container" id="game">
         <div id="timer"></div>
@@ -141,25 +177,27 @@
             <p id="problem" class="problem">3 + 5 = ?</p>
         </div>
         <input type="text" id="answer" readonly>
-        <div class="keyboard">
-            <button class="number-button" onclick="typeNumber(1)">1</button>
-            <button class="number-button" onclick="typeNumber(2)">2</button>
-            <button class="number-button" onclick="typeNumber(3)">3</button>
-            <button class="number-button" onclick="typeNumber(4)">4</button>
-            <button class="number-button" onclick="typeNumber(5)">5</button>
-            <button class="number-button" onclick="typeNumber(6)">6</button>
-            <button class="number-button" onclick="typeNumber(7)">7</button>
-            <button class="number-button" onclick="typeNumber(8)">8</button>
-            <button class="number-button" onclick="typeNumber(9)">9</button>
-            <button class="action-button" onclick="clearAnswer()">C</button>
-            <button class="number-button" onclick="typeNumber(0)">0</button>
-            <button class="action-button" onclick="submitAnswer()">OK</button>
+        <div class="keyboard-container">
+          <div class="keyboard">
+              <button class="number-button" onclick="typeNumber(1)">1</button>
+              <button class="number-button" onclick="typeNumber(2)">2</button>
+              <button class="number-button" onclick="typeNumber(3)">3</button>
+              <button class="number-button" onclick="typeNumber(4)">4</button>
+              <button class="number-button" onclick="typeNumber(5)">5</button>
+              <button class="number-button" onclick="typeNumber(6)">6</button>
+              <button class="number-button" onclick="typeNumber(7)">7</button>
+              <button class="number-button" onclick="typeNumber(8)">8</button>
+              <button class="number-button" onclick="typeNumber(9)">9</button>
+              <button class="action-button" onclick="clearAnswer()">C</button>
+              <button class="number-button" onclick="typeNumber(0)">0</button>
+              <button class="action-button" onclick="submitAnswer()">OK</button>
+          </div>
         </div>
     </div>
     <div id="endgame">
         <h1>Game Over</h1>
         <p>Punteggio: <span id="score">0</span></p>
-        <button onclick="restartGame()">Restart</button>
+        <button class="newGame-button" onclick="restartGame()">Restart</button>
     </div>
     <script src="script.js"></script>
 </body>
