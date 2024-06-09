@@ -211,7 +211,7 @@ function submitAnswer() {
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 80000;
+    timeLeft = 8;
     resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
