@@ -27,7 +27,7 @@
             transition: transform 0.1s;
         }
         
-        .newGame-button button:active {
+        .menu button:active {
           transform: translateY(4px);
           box-shadow: 0 1px #de702b;
         }
@@ -35,7 +35,7 @@
         .game-container {
             text-align: center;
             background: white;
-            padding: 20px;
+            padding: 40px 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
@@ -89,8 +89,8 @@
         }
         
         .hideKeys-button {
-            background-color: #c6c6c6;
-            box-shadow: 0 5px #929292;          
+            background-color: #e0e0e0;
+            box-shadow: 0 5px #c6c6c6;          
         }
         
         .keyboard button:active {
@@ -157,6 +157,7 @@
             width: 100%;
             box-sizing: border-box;
             margin-top: 10px;
+
         }
         #answer::placeholder {
             color: #ccc;
@@ -170,11 +171,12 @@
     </div>
     <div class="game-container" id="game">
         <div id="timer"></div>
-        <h1>Math Challenge</h1>
+        <h1>️Math Challenge</h1>
         <p id="result">Vai!</p>
         <p>Livello: <span id="level">1</span></p>
         <div class="problem-container">
-            <p id="problem" class="problem">3 + 5 = ?</p>
+            <p id="problem" class="problem">3 + 5 = </p>
+            
         </div>
         <input type="text" id="answer" readonly>
         <div class="keyboard-container">
