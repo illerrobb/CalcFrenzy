@@ -147,7 +147,9 @@ function handleCorrectAnswer() {
     nextProblemElement.id = 'problem';
     nextProblemElement.className = 'problem';
     nextProblemElement.innerHTML = `${nextProblem} = <span id="answer-placeholder">?</span>`;
-
+    //nextProblemElement.style.animation = 'drop 0.5s';
+    //setTimeout(() => nextProblemElement.style.animation = '', 500);
+    
     // Create a new next-problem element
     let newNextProblemElement = document.createElement('p');
     newNextProblemElement.id = 'next-problem';
@@ -159,6 +161,12 @@ function handleCorrectAnswer() {
     // Update the problem elements
     problemElement = document.getElementById('problem');
     nextProblemElement = document.getElementById('next-problem');
+    
+    // Animate the elements
+    problemElement.style.animation = 'drop 0.5s';
+    setTimeout(() => problemElement.style.animation = '', 500);       
+    nextProblemElement.style.animation = 'drop 0.5s';
+    setTimeout(() => nextProblemElement.style.animation = '', 500);
     
     currentProblem = nextProblem;
     currentAnswer = nextAnswer;
@@ -190,7 +198,7 @@ function submitAnswer() {
         handleCorrectAnswer();
         resetTimer();
     } else {
-        problemElement.style.animation = 'shake 0.5s';
+        problemElement.style.animation = 'shake 0.2s';
         setTimeout(() => {
             problemElement.style.animation = '';
             resultElement.textContent = 'Incorrect, try again.';
@@ -227,7 +235,7 @@ function applyRandomDisturbance() {
         console.log('Applying disturbance to:', problemElement); // Debugging: output problem element
 
         const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
-        problemElement.classList.remove('drop');
+        //problemElement.classList.remove('drop');
         if (effect === 'shake') {
             console.log('Applying shake effect'); // Debugging: output disturbance effect
             problemElement.style.animation = 'shake 0.5s';
@@ -306,6 +314,7 @@ function applyRandomDisturbance() {
     // Start the disturbance cycle
     setTimeout(applyDisturbance, disturbanceInterval);
 }
+
 function typeNumber(num) {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
     if (answerPlaceholderElement.textContent === '?') {
