@@ -15,8 +15,10 @@ let currentProblem;
 let currentAnswer;
 let nextProblem;
 let nextAnswer;
+let isReplacing = 0;
 const disturbanceFrequency = Math.min(level / 10, 0.5);
 const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
+const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
 
 function startGame() {
     menuElement.style.display = 'none';
@@ -105,7 +107,7 @@ function generateProblem() {
 
     do {
         const complexProbability = Math.min(level / 100, 0.5);
-        const doubleComplexProbability = Math.min(level / 1000, 0.02);
+        const doubleComplexProbability = Math.min(level / 200, 0.1);
         const randomValue = Math.random();
 
         if (randomValue < doubleComplexProbability && level > 10) {
@@ -209,7 +211,7 @@ function submitAnswer() {
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 8;
+    timeLeft = 80000;
     resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
@@ -306,6 +308,10 @@ function applyRandomDisturbance() {
                 }
             }, 3000);
         }
+        
+        if (isReplacing == 0) {
+            randomlyReplaceWithEmoji();
+        }
 
         // Schedule the next disturbance
         setTimeout(applyDisturbance, disturbanceInterval);
@@ -314,6 +320,46 @@ function applyRandomDisturbance() {
     // Start the disturbance cycle
     setTimeout(applyDisturbance, disturbanceInterval);
 }
+
+function randomlyReplaceWithEmoji() {
+    const originalHTML = problemElement.innerHTML;
+    const originalLevel = level;
+    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+
+    // Extract the part before and after the equal sign
+    const equalIndex = originalHTML.indexOf('=');
+    if (equalIndex === -1) return; // If no equal sign is found, do nothing
+
+    const textBeforeEqual = originalHTML.substring(0, equalIndex).trim();
+    const textAfterEqual = originalHTML.substring(equalIndex); // This includes the equal sign and everything after it
+
+    // Split the text before the equal sign into words
+    const words = textBeforeEqual.split(' ');
+
+    // Filter out elements that are not replaceable
+    const replaceableElements = words.filter(el => !['(', ')', '=', '?', ''].includes(el));
+    if (replaceableElements.length === 0) return;
+
+    // Select a random word to replace
+    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
+    const wordToReplace = replaceableElements[randomIndex];
+
+    // Replace the selected word with an emoji
+    const replacedWords = words.map(word => (word === wordToReplace ? randomEmoji : word));
+
+    // Reconstruct the HTML
+    const newHTML = replacedWords.join(' ') + ' ' + textAfterEqual;
+    problemElement.innerHTML = newHTML;
+
+    // Revert back to the original HTML after a delay
+    
+    setTimeout(() => {
+        if (originalLevel == level) {
+            problemElement.innerHTML = originalHTML;
+        }
+    }, 1000 + Math.random() * 1000/level*0.05);
+}
+
 
 function typeNumber(num) {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
