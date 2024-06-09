@@ -55,7 +55,7 @@ function generateProblem() {
     const operators = ['+', '-', '*'];
 
     function getRandomNumber() {
-        return Math.floor(Math.random() * (3 + level * 0.35));
+        return Math.floor(Math.random() * 10 + (level * 0.15));
     }
 
     function getRandomOperator() {
@@ -101,16 +101,16 @@ function generateProblem() {
 
     let expression;
     let result;
-    const maxResult = 10 + level * 3; // Incrementa la difficoltà con il livello
+    const maxResult = 10 + level * 0.5; // Incrementa la difficoltà con il livello
 
     do {
-        const complexProbability = Math.min(level / 80, 0.5);
-        const doubleComplexProbability = Math.min(level / 160, 0.3);
+        const complexProbability = Math.min(level / 100, 0.5);
+        const doubleComplexProbability = Math.min(level / 200, 0.1);
         const randomValue = Math.random();
 
-        if (randomValue < doubleComplexProbability) {
+        if (randomValue < doubleComplexProbability && level > 10) {
             expression = createDoubleComplexExpression();
-        } else if (randomValue < complexProbability) {
+        } else if (randomValue < complexProbability && level > 20) {
             expression = createComplexExpression();
         } else {
             expression = createSimpleExpression();
@@ -201,7 +201,7 @@ function submitAnswer() {
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 8;
+    timeLeft = 80000;
     resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
@@ -219,7 +219,7 @@ function updateTimer() {
 }
 
 function applyRandomDisturbance() {
-    const disturbanceInterval = Math.random() * 5000 + 5000; // Random interval between 5 and 10 seconds
+    const disturbanceInterval = 5000 + Math.random() * 5000/level*0.05; // Random interval between 5 and 10 seconds
 
     function applyDisturbance() {
         // Ensure problemElement is correctly referenced
@@ -249,6 +249,8 @@ function applyRandomDisturbance() {
                 randomKey.textContent = '🎲';
                 randomKey.onclick = typeRandomNumber;
                 randomKey.style.transform = 'rotateY(0)';
+                randomKey.style.transition = '';
+                randomKey.style.transform = '';
             }, 250);
 
             setTimeout(() => {
@@ -257,10 +259,11 @@ function applyRandomDisturbance() {
                 setTimeout(() => {
                     randomKey.style.backgroundColor = '';
                     randomKey.textContent = originalText;
-                    randomKey.classList.remove('hideKeys-button');
                     randomKey.onclick = function() { typeNumber(originalText); };
                     randomKey.style.transform = 'rotateY(0)';
                     randomKey.style.transition = '';
+                    randomKey.style.transform = '';
+                    randomKey.classList.remove('hideKeys-button');
                 }, 250);
             }, 3000);
         } else if (effect === 'addSkullButton') {
@@ -277,6 +280,7 @@ function applyRandomDisturbance() {
                 randomKey.classList.add('skull-button');
                 randomKey.onclick = endGame;
                 randomKey.style.transform = 'rotateY(0)';
+                randomKey.style.transform = '';
             }, 250);
 
             setTimeout(() => {
@@ -289,6 +293,7 @@ function applyRandomDisturbance() {
                         randomKey.onclick = function() { typeNumber(originalText); };
                         randomKey.style.transform = 'rotateY(0)';
                         randomKey.style.transition = '';
+                        randomKey.style.transform = '';
                     }, 250);
                 }
             }, 3000);
