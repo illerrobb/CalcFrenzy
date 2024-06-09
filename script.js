@@ -1,4 +1,5 @@
 let problemElement = document.getElementById('problem');
+let nextProblemElement = document.getElementById('next-problem');
 let answerPlaceholderElement = document.getElementById('answer-placeholder');
 let resultElement = document.getElementById('result');
 let timerElement = document.getElementById('timer');
@@ -12,8 +13,10 @@ let timer;
 let timeLeft = 8;
 let currentProblem;
 let currentAnswer;
+let nextProblem;
+let nextAnswer;
+const disturbanceFrequency = Math.min(level / 10, 0.5);
 const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
-const animalEmojis = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
 
 function startGame() {
     menuElement.style.display = 'none';
@@ -22,8 +25,10 @@ function startGame() {
     level = 1;
     score = 0;
     levelElement.textContent = level;
-    displayProblem();
+    generateCurrentAndNextProblem();
+    displayProblems();
     resetTimer();
+    applyRandomDisturbance();  // Start the autonomous disturbances
 }
 
 function restartGame() {
@@ -33,7 +38,8 @@ function restartGame() {
     level = 1;
     score = 0;
     levelElement.textContent = level;
-    displayProblem();
+    generateCurrentAndNextProblem();
+    displayProblems();
     resetTimer();
     clearAnswer();
 }
@@ -113,29 +119,60 @@ function generateProblem() {
         result = evaluateExpression(expression);
     } while (result < 0 || isNaN(result) || result > maxResult);
 
-    currentAnswer = result;
-    return expression;
+    return { expression, result };
 }
 
-function displayProblem() {
-    currentProblem = generateProblem();
+function generateCurrentAndNextProblem() {
+    let current = generateProblem();
+    let next = generateProblem();
+    currentProblem = current.expression;
+    currentAnswer = current.result;
+    nextProblem = next.expression;
+    nextAnswer = next.result;
+    
+    console.log('nextAnswer:', nextAnswer); // Debugging: output expected answer
+    console.log('currentAnswer:', currentAnswer); // Debugging: output expected answer
+}
+
+function displayProblems() {
     problemElement.innerHTML = `${currentProblem} = <span id="answer-placeholder">?</span>`;
-
-    // Rimuovi le animazioni precedenti
-    problemElement.classList.remove('drop', 'shake', 'flip');
-    //void problemElement.offsetWidth; // Reflow for restarting animations
-
-    // Aggiungi l'animazione di drop solo se non c'è stato un errore recente
-    if (!resultElement.textContent.includes('Incorrect')) {
-        //problemElement.classList.add('drop');
-    }
-
-    const disturbanceFrequency = Math.min(level / 10, 0.5);
-    if (Math.random() < disturbanceFrequency) {
-        setTimeout(applyRandomDisturbance, Math.random() * 5000);
-    }
+    nextProblemElement.innerHTML = `${nextProblem} = ?`;
 }
 
+function handleCorrectAnswer() {
+    // Remove the current problem element
+    problemElement.remove();
+
+    // Make the next-problem element the new problem element
+    nextProblemElement.id = 'problem';
+    nextProblemElement.className = 'problem';
+    nextProblemElement.innerHTML = `${nextProblem} = <span id="answer-placeholder">?</span>`;
+
+    // Create a new next-problem element
+    let newNextProblemElement = document.createElement('p');
+    newNextProblemElement.id = 'next-problem';
+    newNextProblemElement.className = 'problem';
+
+    // Prepend the new next-problem element before the new problem element
+    document.querySelector('.problem-container').prepend(newNextProblemElement);
+
+    // Update the problem elements
+    problemElement = document.getElementById('problem');
+    nextProblemElement = document.getElementById('next-problem');
+    
+    currentProblem = nextProblem;
+    currentAnswer = nextAnswer;
+    
+    // Generate a new next problem
+    let next = generateProblem();
+    nextProblem = next.expression;
+    nextAnswer = next.result;
+    console.log('nextAnswer:', nextAnswer); // Debugging: output expected answer
+    console.log('currentAnswer:', currentAnswer); // Debugging: output expected answer
+
+    // Display the new problems
+    nextProblemElement.innerHTML = `${nextProblem} = ?`;
+}
 
 function submitAnswer() {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
@@ -150,7 +187,7 @@ function submitAnswer() {
         level++;
         score += 10;
         levelElement.textContent = level;
-        displayProblem();
+        handleCorrectAnswer();
         resetTimer();
     } else {
         problemElement.style.animation = 'shake 0.5s';
@@ -182,73 +219,88 @@ function updateTimer() {
 }
 
 function applyRandomDisturbance() {
-    const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
-    problemElement.classList.remove('drop');
-    if (effect === 'shake') {
-        problemElement.style.animation = 'shake 0.5s';
-        setTimeout(() => problemElement.style.animation = '', 500);
-    } else if (effect === 'flip') {
-        problemElement.style.animation = 'flip 1s';
-        setTimeout(() => problemElement.style.animation = '', 1000);
-    } else if (effect === 'hideKeys') {
-        const keys = document.querySelectorAll('.number-button');
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        const originalText = randomKey.textContent;
+    const disturbanceInterval = Math.random() * 5000 + 5000; // Random interval between 5 and 10 seconds
 
-        randomKey.style.transition = 'transform 0.25s';
-        randomKey.style.transform = 'rotateY(90deg)';
+    function applyDisturbance() {
+        // Ensure problemElement is correctly referenced
+        problemElement = document.getElementById('problem');
+        console.log('Applying disturbance to:', problemElement); // Debugging: output problem element
 
-        setTimeout(() => {
-            randomKey.classList.add('hideKeys-button');
-            randomKey.textContent = '🎲';
-            randomKey.onclick = typeRandomNumber;
-            randomKey.style.transform = 'rotateY(0)';
-        }, 250);
+        const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
+        problemElement.classList.remove('drop');
+        if (effect === 'shake') {
+            console.log('Applying shake effect'); // Debugging: output disturbance effect
+            problemElement.style.animation = 'shake 0.5s';
+            setTimeout(() => problemElement.style.animation = '', 500);
+        } else if (effect === 'flip') {
+            console.log('Applying flip effect'); // Debugging: output disturbance effect
+            problemElement.style.animation = 'flip 1s';
+            setTimeout(() => problemElement.style.animation = '', 1000);
+        } else if (effect === 'hideKeys') {
+            const keys = document.querySelectorAll('.number-button');
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            const originalText = randomKey.textContent;
 
-        setTimeout(() => {
             randomKey.style.transition = 'transform 0.25s';
             randomKey.style.transform = 'rotateY(90deg)';
+
             setTimeout(() => {
-                randomKey.style.backgroundColor = '';
-                randomKey.textContent = originalText;
-                randomKey.classList.remove('hideKeys-button');
-                randomKey.onclick = function() { typeNumber(originalText); };
+                randomKey.classList.add('hideKeys-button');
+                randomKey.textContent = '🎲';
+                randomKey.onclick = typeRandomNumber;
                 randomKey.style.transform = 'rotateY(0)';
-                randomKey.style.transition = '';
             }, 250);
-        }, 3000);
-    } else if (effect === 'addSkullButton') {
-        const keys = document.querySelectorAll('.number-button');
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        const originalText = randomKey.textContent;
 
-        randomKey.dataset.originalText = originalText;
-        randomKey.style.transition = 'transform 0.25s';
-        randomKey.style.transform = 'rotateY(90deg)';
-
-        setTimeout(() => {
-            randomKey.textContent = '☠️';
-            randomKey.classList.add('skull-button');
-            randomKey.onclick = endGame;
-            randomKey.style.transform = 'rotateY(0)';
-        }, 250);
-
-        setTimeout(() => {
-            if (randomKey.parentNode) {
+            setTimeout(() => {
                 randomKey.style.transition = 'transform 0.25s';
                 randomKey.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
+                    randomKey.style.backgroundColor = '';
                     randomKey.textContent = originalText;
-                    randomKey.classList.remove('skull-button');
+                    randomKey.classList.remove('hideKeys-button');
                     randomKey.onclick = function() { typeNumber(originalText); };
                     randomKey.style.transform = 'rotateY(0)';
                     randomKey.style.transition = '';
                 }, 250);
-            }
-        }, 3000);
-    }
-}
+            }, 3000);
+        } else if (effect === 'addSkullButton') {
+            const keys = document.querySelectorAll('.number-button');
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            const originalText = randomKey.textContent;
 
+            randomKey.dataset.originalText = originalText;
+            randomKey.style.transition = 'transform 0.25s';
+            randomKey.style.transform = 'rotateY(90deg)';
+
+            setTimeout(() => {
+                randomKey.textContent = '☠️';
+                randomKey.classList.add('skull-button');
+                randomKey.onclick = endGame;
+                randomKey.style.transform = 'rotateY(0)';
+            }, 250);
+
+            setTimeout(() => {
+                if (randomKey.parentNode) {
+                    randomKey.style.transition = 'transform 0.25s';
+                    randomKey.style.transform = 'rotateY(90deg)';
+                    setTimeout(() => {
+                        randomKey.textContent = originalText;
+                        randomKey.classList.remove('skull-button');
+                        randomKey.onclick = function() { typeNumber(originalText); };
+                        randomKey.style.transform = 'rotateY(0)';
+                        randomKey.style.transition = '';
+                    }, 250);
+                }
+            }, 3000);
+        }
+
+        // Schedule the next disturbance
+        setTimeout(applyDisturbance, disturbanceInterval);
+    }
+
+    // Start the disturbance cycle
+    setTimeout(applyDisturbance, disturbanceInterval);
+}
 function typeNumber(num) {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
     if (answerPlaceholderElement.textContent === '?') {
