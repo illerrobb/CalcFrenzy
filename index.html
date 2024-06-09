@@ -111,43 +111,45 @@
         }
         
         .problem-container {
-            height: auto;
+            height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            margin-bottom: 0px;
+            margin-bottom: 20px;
         }
         
         .problem {
             min-height: 50px;
-            margin: 5px;
+            margin: 10px;
+            transition: 0.5s;
+            font-family: 'Arial', sans-serif;
         }
         
         #next-problem {
             font-size: 24px;
-            font-family: 'Arial', sans-serif;
             color: grey;
-            margin: 5px;
-            transition: 0.5s;
         }
         
         #problem {
             font-size: 36px;
-            font-family: 'Arial', sans-serif;
-            margin: 5px;
-            transition: 0.5s;
         }
         
         
         .drop {
-            animation: drop ease-in 0.5s forwards;
+            animation: drop ease-out 0.2s forwards;
         }
         
         @keyframes drop {
-            from { transform: translateY(-100px); }
-            to { transform: translateY(0); }
+            from { 
+                transform: translateY(-76px);
+                opacity: 0.5;
+            }
+            to { 
+                transform: translateY(0px); 
+                opacity: 1;
+            }
         }
         
         @keyframes shake {
