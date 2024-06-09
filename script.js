@@ -1,5 +1,5 @@
 let problemElement = document.getElementById('problem');
-let answerElement = document.getElementById('answer');
+let answerPlaceholderElement = document.getElementById('answer-placeholder');
 let resultElement = document.getElementById('result');
 let timerElement = document.getElementById('timer');
 let levelElement = document.getElementById('level');
@@ -49,7 +49,7 @@ function generateProblem() {
     const operators = ['+', '-', '*'];
 
     function getRandomNumber() {
-        return Math.floor(Math.random() * (3 + level*0.35));
+        return Math.floor(Math.random() * (3 + level * 0.35));
     }
 
     function getRandomOperator() {
@@ -119,12 +119,16 @@ function generateProblem() {
 
 function displayProblem() {
     currentProblem = generateProblem();
-    problemElement.textContent = `${currentProblem} = ?`;
+    problemElement.innerHTML = `${currentProblem} = <span id="answer-placeholder">?</span>`;
 
+    // Rimuovi le animazioni precedenti
     problemElement.classList.remove('drop', 'shake', 'flip');
-    void problemElement.offsetWidth;
+    //void problemElement.offsetWidth; // Reflow for restarting animations
 
-    problemElement.classList.add('drop');
+    // Aggiungi l'animazione di drop solo se non c'è stato un errore recente
+    if (!resultElement.textContent.includes('Incorrect')) {
+        //problemElement.classList.add('drop');
+    }
 
     const disturbanceFrequency = Math.min(level / 10, 0.5);
     if (Math.random() < disturbanceFrequency) {
@@ -132,10 +136,15 @@ function displayProblem() {
     }
 }
 
-function submitAnswer() {
-    let userAnswer = parseFloat(answerElement.value);
 
-    if (userAnswer === currentAnswer) {
+function submitAnswer() {
+    let answerPlaceholderElement = document.getElementById('answer-placeholder');
+    let userAnswer = parseFloat(answerPlaceholderElement.textContent);
+
+    console.log('Expected:', currentAnswer); // Debugging: output expected answer
+    console.log('User Answer:', userAnswer); // Debugging: output user's answer
+
+    if (userAnswer === parseFloat(currentAnswer)) {
         resultElement.textContent = 'Correct!';
         clearInterval(timer);
         level++;
@@ -144,27 +153,31 @@ function submitAnswer() {
         displayProblem();
         resetTimer();
     } else {
-        problemElement.style.animation = 'shake 0.25s';
-        setTimeout(() => problemElement.style.animation = '', 500);
-        resultElement.textContent = 'Incorrect, try again.';
+        problemElement.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+            problemElement.style.animation = '';
+            resultElement.textContent = 'Incorrect, try again.';
+        }, 500);
     }
-    answerElement.value = '';
+    clearAnswer();
 }
 
 function resetTimer() {
     clearInterval(timer);
     timeLeft = 8;
+    resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
 }
 
 function updateTimer() {
     timeLeft--;
-    timerElement.style.width = (timeLeft / 8) * 100 + '%';
+    timerElement.style.width = ((timeLeft)/8) * 100 + '%';
+    resultElement.textContent = timeLeft;
     if (timeLeft <= 0) {
         clearInterval(timer);
         resultElement.textContent = 'Time is up! You lost.';
-        setTimeout(endGame, 500);
+        setTimeout(endGame, 15);
     }
 }
 
@@ -181,14 +194,14 @@ function applyRandomDisturbance() {
         const keys = document.querySelectorAll('.number-button');
         const randomKey = keys[Math.floor(Math.random() * keys.length)];
         const originalText = randomKey.textContent;
-        
+
         randomKey.style.transition = 'transform 0.25s';
         randomKey.style.transform = 'rotateY(90deg)';
 
         setTimeout(() => {
             randomKey.classList.add('hideKeys-button');
             randomKey.textContent = '🎲';
-            randomKey.onclick = typerRandomNumber;
+            randomKey.onclick = typeRandomNumber;
             randomKey.style.transform = 'rotateY(0)';
         }, 250);
 
@@ -197,7 +210,6 @@ function applyRandomDisturbance() {
             randomKey.style.transform = 'rotateY(90deg)';
             setTimeout(() => {
                 randomKey.style.backgroundColor = '';
-                //randomKey.textContent = randomKey.dataset.originalText || '';
                 randomKey.textContent = originalText;
                 randomKey.classList.remove('hideKeys-button');
                 randomKey.onclick = function() { typeNumber(originalText); };
@@ -237,34 +249,20 @@ function applyRandomDisturbance() {
     }
 }
 
-function randomlyReplaceWithEmoji() {
-    const originalText = problemElement.textContent;
-    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-    const elements = originalText.split(' ');
-
-    const replaceableElements = elements.filter(el => !['(', ')', '=', '?'].includes(el));
-    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
-
-    const elementToReplace = replaceableElements[randomIndex];
-    const elementIndex = elements.indexOf(elementToReplace);
-
-    elements[elementIndex] = randomEmoji;
-    problemElement.textContent = elements.join(' ');
-
-    setTimeout(() => {
-        problemElement.textContent = originalText;
-    }, 1000);
-}
-
 function typeNumber(num) {
-    answerElement.value += num;
+    let answerPlaceholderElement = document.getElementById('answer-placeholder');
+    if (answerPlaceholderElement.textContent === '?') {
+        answerPlaceholderElement.textContent = '';
+    }
+    answerPlaceholderElement.textContent += num;
 }
 
-function typerRandomNumber(num) {
-    answerElement.value += Math.floor(Math.random() * 10);
+function typeRandomNumber() {
+    const randomNum = Math.floor(Math.random() * 10);
+    typeNumber(randomNum);
 }
-
 
 function clearAnswer() {
-    answerElement.value = '';
+    let answerPlaceholderElement = document.getElementById('answer-placeholder');
+    answerPlaceholderElement.textContent = '?';
 }
