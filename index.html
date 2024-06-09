@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"">
     <title>Math Challenge</title>
     <style>
         body {
@@ -13,6 +13,10 @@
             height: 100vh;
             background-color: #f0f0f0;
             flex-direction: column;
+        }
+        
+        .levelHeading {
+            margin: 10px;
         }
         
         .newGame-button {
@@ -54,15 +58,15 @@
             height: fit-content;  
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px; /* Spazio uniforme tra i pulsanti */
+            gap: 10px; /* Spazio uniforme tra i pulsanti */
             justify-content: center; /* Centra la tastiera orizzontalmente */
             justify-items: center; /* Centra i pulsanti all'interno delle celle della griglia */
             align-items: center; /* Centra i pulsanti verticalmente all'interno delle celle della griglia */
         }
         
         .keyboard button {
-            width: 70px;
-            height: 70px;
+            width: 50px;
+            height: 50px;
             font-size: 30px;
             color: white;
             transition: transform 0.1s;
@@ -117,7 +121,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            padding-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .problem {
@@ -133,18 +137,18 @@
         }
         
         #problem {
-            font-size: 36px;
+            font-size: 32px;
         }
         
         
         .drop {
-            animation: drop ease-out 0.2s forwards;
+            animation: drop ease-in 0.35s forwards;
         }
         
         @keyframes drop {
             from { 
                 transform: translateY(-76px);
-                opacity: 0.5;
+                opacity: 0.6;
             }
             to { 
                 transform: translateY(0px); 
@@ -200,9 +204,9 @@
         <button class="newGame-button" onclick="startGame()">Start Game</button>
     </div>
     <div class="game-container" id="game">
-        <div id="timer"></div>
-        <p id="result">Vai!</p>
-        <h1>Livello: <span id="level">1</span><h1>
+        <div id="timer""></div>
+        <p id="result" style="display:none;">Vai!</p>
+        <h1 class="levelHeading">Level: <span id="level">1</span><h1>
         <div class="problem-container">
             <p id="next-problem" class="problem">3 + 5 = <span id="next-placeholder">?</span></p>
             <p id="problem" class="problem">3 + 5 = <span id="answer-placeholder">?</span></p>
