@@ -8,7 +8,6 @@ let gameElement = document.getElementById('game');
 let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
 
-
 let timer;
 let timeLeft = 8;
 let currentProblem;
@@ -36,6 +35,7 @@ function restartGame() {
     levelElement.textContent = level;
     displayProblem();
     resetTimer();
+    clearAnswer();
 }
 
 function endGame() {
@@ -144,6 +144,8 @@ function submitAnswer() {
         displayProblem();
         resetTimer();
     } else {
+        problemElement.style.animation = 'shake 0.25s';
+        setTimeout(() => problemElement.style.animation = '', 500);
         resultElement.textContent = 'Incorrect, try again.';
     }
     answerElement.value = '';
@@ -162,7 +164,7 @@ function updateTimer() {
     if (timeLeft <= 0) {
         clearInterval(timer);
         resultElement.textContent = 'Time is up! You lost.';
-        setTimeout(endGame, 2000);
+        setTimeout(endGame, 500);
     }
 }
 
