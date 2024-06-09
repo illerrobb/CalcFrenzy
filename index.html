@@ -111,8 +111,9 @@
         }
         
         .problem-container {
-            height: 70px;
+            height: auto;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -120,9 +121,25 @@
         }
         
         .problem {
+            min-height: 50px;
+            margin: 5px;
+        }
+        
+        #next-problem {
+            font-size: 24px;
+            font-family: 'Arial', sans-serif;
+            color: grey;
+            margin: 5px;
+            transition: 0.5s;
+        }
+        
+        #problem {
             font-size: 36px;
             font-family: 'Arial', sans-serif;
+            margin: 5px;
+            transition: 0.5s;
         }
+        
         
         .drop {
             animation: drop ease-in 0.5s forwards;
@@ -144,6 +161,8 @@
             0%, 100% { transform: rotateY(0); }
             50% { transform: rotateY(180deg); }
         }
+        
+        
         
         #menu, #endgame {
             text-align: center;
@@ -180,10 +199,10 @@
     </div>
     <div class="game-container" id="game">
         <div id="timer"></div>
-        <h1>️Math Challenge</h1>
         <p id="result">Vai!</p>
-        <p>Livello: <span id="level">1</span></p>
+        <h1>Livello: <span id="level">1</span><h1>
         <div class="problem-container">
+            <p id="next-problem" class="problem">3 + 5 = <span id="next-placeholder">?</span></p>
             <p id="problem" class="problem">3 + 5 = <span id="answer-placeholder">?</span></p>
         </div>
         <div class="keyboard-container">
