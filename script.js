@@ -14,6 +14,7 @@ let timeLeft = 8;
 let currentProblem;
 let currentAnswer;
 const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
+const animalEmojis = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
 
 function startGame() {
     menuElement.style.display = 'none';
@@ -95,7 +96,6 @@ function generateProblem() {
     let expression;
     let result;
     const maxResult = 10 + level * 3; // Incrementa la difficoltà con il livello
-    const minResult = level * 3;
 
     do {
         const complexProbability = Math.min(level / 80, 0.5);
@@ -111,7 +111,7 @@ function generateProblem() {
         }
 
         result = evaluateExpression(expression);
-    } while (result < 0 || isNaN(result) || result > maxResult || result >= minResult);
+    } while (result < 0 || isNaN(result) || result > maxResult);
 
     currentAnswer = result;
     return expression;
@@ -178,21 +178,27 @@ function applyRandomDisturbance() {
     } else if (effect === 'hideKeys') {
         const keys = document.querySelectorAll('.number-button');
         const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        randomKey.style.transition = 'transform 0.5s';
-        randomKey.style.transform = 'rotateY(180deg)';
+        const originalText = randomKey.textContent;
+        
+        randomKey.style.transition = 'transform 0.25s';
+        randomKey.style.transform = 'rotateY(90deg)';
 
         setTimeout(() => {
-            randomKey.style.backgroundColor = 'lightgray';
-            randomKey.textContent = '?';
+            randomKey.classList.add('hideKeys-button');
+            randomKey.textContent = '🎲';
+            randomKey.onclick = typerRandomNumber;
             randomKey.style.transform = 'rotateY(0)';
         }, 250);
 
         setTimeout(() => {
-            randomKey.style.transition = 'transform 0.5s';
-            randomKey.style.transform = 'rotateY(180deg)';
+            randomKey.style.transition = 'transform 0.25s';
+            randomKey.style.transform = 'rotateY(90deg)';
             setTimeout(() => {
                 randomKey.style.backgroundColor = '';
-                randomKey.textContent = randomKey.dataset.originalText || '';
+                //randomKey.textContent = randomKey.dataset.originalText || '';
+                randomKey.textContent = originalText;
+                randomKey.classList.remove('hideKeys-button');
+                randomKey.onclick = function() { typeNumber(originalText); };
                 randomKey.style.transform = 'rotateY(0)';
                 randomKey.style.transition = '';
             }, 250);
@@ -203,8 +209,8 @@ function applyRandomDisturbance() {
         const originalText = randomKey.textContent;
 
         randomKey.dataset.originalText = originalText;
-        randomKey.style.transition = 'transform 0.5s';
-        randomKey.style.transform = 'rotateY(180deg)';
+        randomKey.style.transition = 'transform 0.25s';
+        randomKey.style.transform = 'rotateY(90deg)';
 
         setTimeout(() => {
             randomKey.textContent = '☠️';
@@ -215,8 +221,8 @@ function applyRandomDisturbance() {
 
         setTimeout(() => {
             if (randomKey.parentNode) {
-                randomKey.style.transition = 'transform 0.5s';
-                randomKey.style.transform = 'rotateY(180deg)';
+                randomKey.style.transition = 'transform 0.25s';
+                randomKey.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
                     randomKey.textContent = originalText;
                     randomKey.classList.remove('skull-button');
@@ -251,6 +257,11 @@ function randomlyReplaceWithEmoji() {
 function typeNumber(num) {
     answerElement.value += num;
 }
+
+function typerRandomNumber(num) {
+    answerElement.value += Math.floor(Math.random() * 10);
+}
+
 
 function clearAnswer() {
     answerElement.value = '';
