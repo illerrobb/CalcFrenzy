@@ -2,114 +2,118 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Challenge</title>
     <style>
+        /* RESET BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* Rimuove l'evidenziazione del tocco su iOS */
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Arial", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; 
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased; /* Migliora il rendering dei font su iOS */
         }
-        
+
         .levelHeading {
             margin: 10px;
         }
-        
-        .newGame-button {
+
+        button {
             border: none;
             border-radius: 5px;
-            font-family: 'Arial', sans-serif;
-            font-size: 20px;
+            font-family: inherit; /* Eredita il font dal body */
             color: white;
             background-color: #f0a500;
             box-shadow: 0 5px #de702b;
-            padding: 5px 10px;
+            padding: 10px 20px;
             transition: transform 0.1s;
+            cursor: pointer; /* Assicura che i bottoni siano cliccabili */
+            font-size: 1.2rem;
+            -webkit-appearance: none; /* Rimuove lo stile predefinito dei bottoni su iOS */
         }
-        
-        .menu button:active {
+
+        button:active {
             transform: translateY(4px);
-            box-shadow: 0 1px #de702b;
+            box-shadow: 0 1px;
         }
-        
+
+        .newGame-button {
+            font-size: 1.5rem;
+        }
+
         .game-container {
             text-align: center;
             background: white;
-            padding: 30px 50px;
+            padding: 30px 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 360px;
-            max-height: 550px;
-            height: 100%;
+            width: 90%;
+            max-width: 500px;
             position: relative;
-            display: none; /* Nascondi il gioco all'inizio */
+            display: none;
         }
-        
+
         .keyboard-container {
-            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .keyboard {
             width: 100%;
-            max-width: 280px;
-            height: fit-content;
+            margin-top: 20px;
+        }
+
+        .keyboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5%;
+            gap: 10px;
             justify-content: center;
-            justify-items: center;
-            align-items: center;
+            width: 100%;
         }
-        
+
         .keyboard button {
             width: 100%;
-            min-width: 50px;
-            height: 50px;
-            font-size: 30px;
+            height: 60px;
+            font-size: 2rem;
             color: white;
             transition: transform 0.1s;
             border: none;
             border-radius: 10px;
-            font-family: 'Arial', sans-serif;
+            font-family: inherit;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
         }
-        
+
         .number-button {
             background-color: #76c7c0;
             box-shadow: 0 5px #5b9e9a;
         }
-        
+
         .action-button {
             background-color: #f0a500;
             box-shadow: 0 5px #de702b;
         }
-        
+
         .skull-button {
             background-color: #f44336;
             box-shadow: 0 5px #a11414;
         }
-        
+
         .hideKeys-button {
             background-color: #e0e0e0;
-            box-shadow: 0 5px #c6c6c6;          
+            box-shadow: 0 5px #c6c6c6;
         }
-        
-        .keyboard button:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px;
-        }
-        
+
+        /* Timer con Overflow */
         #timer {
             height: 20px;
             background-color: #76c7c0;
@@ -118,79 +122,83 @@
             top: 0;
             left: 0;
             transition: width 0.5s ease-out;
+            overflow: hidden; /* Nasconde il contenuto che supera i bordi */
+            border-radius: 10px 10px 0 0; /* Arrotonda solo gli angoli superiori */
         }
-        
+        #timer-bar { 
+            height: 100%;
+            background-color: #76c7c0; /* Colore della barra del timer */
+            width: 100%; 
+        }
+
         .problem-container {
             height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            font-weight: bold;
             align-items: center;
             overflow: hidden;
             margin-bottom: 20px;
         }
-        
+
         .problem {
             min-height: 50px;
             margin: 10px;
             transition: 0.5s;
-            font-family: 'Arial', sans-serif;
+            font-family: inherit;
         }
-        
+
         #next-problem {
-            font-size: 24px;
+            font-size: 1.5rem;
             color: grey;
         }
-        
+
         #problem {
-            font-size: 32px;
+            font-size: 2.5rem;
         }
-        
-        
+
         .drop {
             animation: drop ease-in 0.35s forwards;
         }
-        
+
         @keyframes drop {
-            from { 
+            from {
                 transform: translateY(-76px);
                 opacity: 0.6;
             }
-            to { 
-                transform: translateY(0px); 
+            to {
+                transform: translateY(0px);
                 opacity: 1;
             }
         }
-        
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             50% { transform: translateX(10px); }
             75% { transform: translateX(-10px); }
         }
-        
+
         @keyframes flip {
             0%, 100% { transform: rotateY(0); }
             50% { transform: rotateY(180deg); }
         }
-        
-        
-        
+
         #menu, #endgame {
             text-align: center;
         }
-        
+
         #menu {
-            display: block; /* Mostra il menu inizialmente */
+            display: block;
         }
-        
+
         #endgame {
             display: none;
         }
-        
-        /* Stile per il box di input */
+
         #answer {
-            font-size: 36px;
+            font-size: 2rem;
             text-align: center;
             border: none;
             outline: none;
@@ -198,21 +206,43 @@
             box-sizing: border-box;
             margin-top: 10px;
         }
-        
+
         #answer::placeholder {
             color: #ccc;
+        }
+
+        /* Media Queries per schermi più piccoli */
+        @media (max-width: 600px) {
+            button {
+                font-size: 1rem; 
+                padding: 8px 16px; 
+            }
+            
+            .keyboard button {
+                height: 50px; 
+                font-size: 1.8rem;
+            }
+
+            #problem {
+                font-size: 2rem;
+            }
+
+            #next-problem {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="menu">
+    <div id="menu" >
         <h1>Math Challenge</h1>
         <button class="newGame-button" onclick="startGame()">Start Game</button>
     </div>
     <div class="game-container" id="game">
-        <div id="timer""></div>
+        <div id="timer">
+            <div id="timer-bar"></div> </div>
         <p id="result" style="display:none;">Vai!</p>
-        <h1 class="levelHeading">Level: <span id="level">1</span><h1>
+        <h1 class="levelHeading">Level: <span id="level">1</span></h1>
         <div class="problem-container">
             <p id="next-problem" class="problem">3 + 5 = <span id="next-placeholder">?</span></p>
             <p id="problem" class="problem">3 + 5 = <span id="answer-placeholder">?</span></p>
