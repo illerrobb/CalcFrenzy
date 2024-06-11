@@ -54,6 +54,13 @@
             transform: translateY(4px);
             box-shadow: 0 1px;
         }
+        
+        .number-button:active,
+        .number-button.hideKeys-button:active,
+        .number-button.skull-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px;
+        }
 
         .newGame-button {
             font-size: 1.5rem;
@@ -281,17 +288,17 @@
         </div>
         <div class="keyboard-container">
             <div class="keyboard">
-                <button class="number-button" onclick="typeNumber(1)">1</button>
-                <button class="number-button" onclick="typeNumber(2)">2</button>
-                <button class="number-button" onclick="typeNumber(3)">3</button>
-                <button class="number-button" onclick="typeNumber(4)">4</button>
-                <button class="number-button" onclick="typeNumber(5)">5</button>
-                <button class="number-button" onclick="typeNumber(6)">6</button>
-                <button class="number-button" onclick="typeNumber(7)">7</button>
-                <button class="number-button" onclick="typeNumber(8)">8</button>
-                <button class="number-button" onclick="typeNumber(9)">9</button>
+                <button id="key_1" class="number-button" onclick="typeNumber(1)">1</button>
+                <button id="key_2" class="number-button" onclick="typeNumber(2)">2</button>
+                <button id="key_3" class="number-button" onclick="typeNumber(3)">3</button>
+                <button id="key_4" class="number-button" onclick="typeNumber(4)">4</button>
+                <button id="key_5" class="number-button" onclick="typeNumber(5)">5</button>
+                <button id="key_6" class="number-button" onclick="typeNumber(6)">6</button>
+                <button id="key_7" class="number-button" onclick="typeNumber(7)">7</button>
+                <button id="key_8" class="number-button" onclick="typeNumber(8)">8</button>
+                <button id="key_9" class="number-button" onclick="typeNumber(9)">9</button>
                 <button class="action-button" onclick="clearAnswer()">C</button>
-                <button class="number-button" onclick="typeNumber(0)">0</button>
+                <button id="key_10" class="number-button" onclick="typeNumber(0)">0</button>
                 <button class="action-button" onclick="submitAnswer()">OK</button>
             </div>
         </div>
