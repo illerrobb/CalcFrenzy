@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Math Challenge</title>
@@ -25,7 +29,7 @@
         }
 
         .levelHeading {
-            margin: 10px;
+            margin: 0.2em;
         }
 
         button {
@@ -54,13 +58,16 @@
         .game-container {
             text-align: center;
             background: white;
-            padding: 30px 15px;
+            padding: 40px 30px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 500px;
+            width: 100%;
+            max-width: 450px;
+            height: 90%;
             position: relative;
             display: none;
+            justify-content: space-between;
+            flex-flow: column;
         }
 
         .keyboard-container {
@@ -118,12 +125,10 @@
             height: 20px;
             background-color: #76c7c0;
             width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: width 0.5s ease-out;
+            position: relative;
+            transition: width 0.1s ease-out;
             overflow: hidden; /* Nasconde il contenuto che supera i bordi */
-            border-radius: 10px 10px 0 0; /* Arrotonda solo gli angoli superiori */
+            border-radius: 10px; /* Arrotonda solo gli angoli superiori */
         }
         #timer-bar { 
             height: 100%;
@@ -145,7 +150,6 @@
         .problem {
             min-height: 50px;
             margin: 10px;
-            transition: 0.5s;
             font-family: inherit;
         }
 
@@ -161,7 +165,11 @@
         .drop {
             animation: drop ease-in 0.35s forwards;
         }
-
+        
+        .fadeOutBottomRight {
+          
+        }
+        
         @keyframes drop {
             from {
                 transform: translateY(-76px);
