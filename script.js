@@ -10,7 +10,7 @@ let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
 
 let timer;
-let timerDuration = 100;
+let timerDuration = 10;
 let timeLeft;
 let currentProblem;
 let currentAnswer;
@@ -199,7 +199,7 @@ function submitAnswer() {
         score += 10;
         levelElement.textContent = level;
         handleCorrectAnswer();
-        addTime(5);
+        addTime(3);
     } else {
         problemElement.style.animation = 'shake 0.2s';
         setTimeout(() => {
