@@ -21,7 +21,7 @@ let nextAnswer;
 let isReplacing = 0;
 let isPlaying;
 const disturbanceFrequency = Math.min(level / 10, 0.5);
-const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
+const disturbanceEffects = ['hideKeys', 'addSkullButton'];
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
 
 function startGame() {
@@ -49,6 +49,7 @@ function restartGame() {
     displayProblems();
     resetTimer();
     clearAnswer();
+    clearEmoji();
     isPlaying = 1;
 }
 
@@ -57,6 +58,7 @@ function endGame() {
     gameElement.style.display = 'none';
     endgameElement.style.display = 'flex';
     scoreElement.textContent = score;
+    clearEmoji();
     isPlaying = 0;
 }
 
@@ -350,163 +352,6 @@ function applyRandomDisturbance() {
     setTimeout(applyDisturbance, disturbanceInterval);
 }
 
-function _randomlyReplaceWithEmoji() {
-    const originalHTML = problemElement.innerHTML;
-    const originalLevel = level;
-    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-
-    // Extract the part before and after the equal sign
-    const equalIndex = originalHTML.indexOf('=');
-    if (equalIndex === -1) return; // If no equal sign is found, do nothing
-
-    const textBeforeEqual = originalHTML.substring(0, equalIndex).trim();
-    const textAfterEqual = originalHTML.substring(equalIndex); // This includes the equal sign and everything after it
-
-    // Split the text before the equal sign into words
-    const words = textBeforeEqual.split(' ');
-
-    // Filter out elements that are not replaceable
-    const replaceableElements = words.filter(el => !['(', ')', '=', '?', ''].includes(el));
-    if (replaceableElements.length === 0) return;
-
-    // Select a random word to replace
-    const randomIndex = Math.floor(Math.random() * replaceableElements.length);
-    const wordToReplace = replaceableElements[randomIndex];
-
-    // Replace the selected word with an emoji
-    const replacedWords = words.map(word => (word === wordToReplace ? randomEmoji : word));
-
-    // Reconstruct the HTML
-    const newHTML = replacedWords.join(' ') + ' ' + textAfterEqual;
-    problemElement.innerHTML = newHTML;
-
-    // Revert back to the original HTML after a delay
-    
-    setTimeout(() => {
-        if (originalLevel == level) {
-            problemElement.innerHTML = originalHTML;
-        }
-    }, 1000 + Math.random() * 1000/level*0.05);
-}
-
-function _1randomlyReplaceWithEmoji() {
-    const originalHTML = problemElement.innerHTML;
-    const originalLevel = level;
-    const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-
-    // Find the index of the equal sign
-    const equalIndex = originalHTML.indexOf('=');
-    if (equalIndex === -1) return; // If no equal sign is found, do nothing
-
-    // Get the text before and after the equal sign
-    const textBeforeEqual = originalHTML.substring(0, equalIndex);
-    const textAfterEqual = originalHTML.substring(equalIndex); // This includes the equal sign and everything after it
-
-    // Function to get a random replaceable index
-    function getRandomReplaceableIndex(text) {
-        const replaceableIndices = [];
-        for (let i = 0; i < text.length; i++) {
-            if (/[0-9+\-*/]/.test(text[i])) {
-                replaceableIndices.push(i);
-            }
-        }
-        if (replaceableIndices.length === 0) return null;
-        return replaceableIndices[Math.floor(Math.random() * replaceableIndices.length)];
-    }
-
-    // Get a random replaceable index
-    let randomIndex = getRandomReplaceableIndex(textBeforeEqual);
-    if (randomIndex === null) return; // If no replaceable character is found, do nothing
-
-    // Save the original character at the random index
-    const originalChar = textBeforeEqual[randomIndex];
-
-    // Replace the character with an emoji
-    const replacedText = textBeforeEqual.substring(0, randomIndex) + randomEmoji + textBeforeEqual.substring(randomIndex + 1);
-
-    // Update the problem element with the modified text
-    problemElement.innerHTML = replacedText + textAfterEqual;
-
-    // Revert back to the original character after a delay
-    setTimeout(() => {
-        if (originalLevel == level) {
-          const restoredText = textBeforeEqual.substring(0, randomIndex) + originalChar + textBeforeEqual.substring(randomIndex + 1);
-          const currentOriginalHTML = problemElement.innerHTML;
-          let currentTextAfterEqual = currentOriginalHTML.substring(equalIndex);
-          problemElement.innerHTML = restoredText + currentTextAfterEqual;
-        }
-    }, 1000);
-}
-
-function _2randomlyReplaceWithEmoji() {
-    const originalHTML = problemElement.innerHTML;
-    const originalLevel = level;
-    const randomEmoji = () => animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
-
-    // Find the index of the equal sign
-    const equalIndex = originalHTML.indexOf('=');
-    if (equalIndex === -1) return; // If no equal sign is found, do nothing
-
-    // Get the text before and after the equal sign
-    const textBeforeEqual = originalHTML.substring(0, equalIndex);
-    const textAfterEqual = originalHTML.substring(equalIndex); // This includes the equal sign and everything after it
-
-    // Function to get replaceable indices
-    function getReplaceableIndices(text) {
-        const replaceableIndices = [];
-        for (let i = 0; i < text.length; i++) {
-            if (/[0-9+\-*/]/.test(text[i])) {
-                replaceableIndices.push(i);
-            }
-        }
-        return replaceableIndices;
-    }
-
-    // Get replaceable indices
-    const replaceableIndices = getReplaceableIndices(textBeforeEqual);
-    if (replaceableIndices.length === 0) return; // If no replaceable character is found, do nothing
-
-    // Determine the number of characters to replace based on the level
-    const maxReplacements = Math.min(3, Math.floor(level / 10) + 1);
-    const numReplacements = Math.min(maxReplacements, replaceableIndices.length);
-    
-    // Randomly select indices to replace
-    const selectedIndices = [];
-    while (selectedIndices.length < numReplacements) {
-        const randomIndex = replaceableIndices[Math.floor(Math.random() * replaceableIndices.length)];
-        if (!selectedIndices.includes(randomIndex)) {
-            selectedIndices.push(randomIndex);
-        }
-    }
-
-    // Save the original characters at the selected indices
-    const originalChars = selectedIndices.map(index => textBeforeEqual[index]);
-
-    // Replace the selected characters with emojis
-    let replacedText = textBeforeEqual.split('');
-    selectedIndices.forEach(index => {
-        replacedText[index] = randomEmoji();
-    });
-    replacedText = replacedText.join('');
-
-    // Update the problem element with the modified text
-    problemElement.innerHTML = replacedText + textAfterEqual;
-
-    // Revert back to the original characters after a delay
-    setTimeout(() => {
-        if (originalLevel == level) {
-            let restoredText = textBeforeEqual.split('');
-            selectedIndices.forEach((index, i) => {
-                restoredText[index] = originalChars[i];
-            });
-            restoredText = restoredText.join('');
-            const currentOriginalHTML = problemElement.innerHTML;
-            let currentTextAfterEqual = currentOriginalHTML.substring(equalIndex);
-            problemElement.innerHTML = restoredText + currentTextAfterEqual;
-        }
-    }, 1000 + Math.random() * 1000/level*0.05);
-}
-
 function randomlyReplaceWithEmoji() {
   const randomEmojiElement = document.createElement('div');
   const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
@@ -529,12 +374,17 @@ function randomlyReplaceWithEmoji() {
   problemContainer.appendChild(randomEmojiElement);
 
   randomEmojiElement.addEventListener('click', () => {
-    randomEmojiElement.style.transition = 'opacity 0.5s ease-out';
+    randomEmojiElement.style.transition = 'opacity 0.1s ease-out';
     randomEmojiElement.style.opacity = '0';
     setTimeout(() => {
       randomEmojiElement.remove();
     }, 500);
   });
+}
+
+function clearEmoji() {
+    const randomEmojiElement = querySelector('.emoji-overlay');
+    randomEmojiElement.remove();
 }
 
 function typeNumber(num) {
