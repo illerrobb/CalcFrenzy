@@ -56,6 +56,7 @@
         }
 
         .game-container {
+            display: flex;
             text-align: center;
             background: white;
             padding: 40px 30px;
@@ -63,13 +64,31 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 450px;
-            height: 90%;
             position: relative;
             display: none;
+
+        }
+        
+        #menu {
+            display: flex;
+            height: 25%;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+        
+        #game {
+            height: 90%;
             justify-content: space-between;
             flex-flow: column;
         }
-
+        
+        #endgame {
+            height: 25%;
+            flex-direction: column;
+            justify-content: space-around;
+ 
+        }
+        
         .keyboard-container {
             display: flex;
             align-items: center;
@@ -166,10 +185,6 @@
             animation: drop ease-in 0.35s forwards;
         }
         
-        .fadeOutBottomRight {
-          
-        }
-        
         @keyframes drop {
             from {
                 transform: translateY(-76px);
@@ -195,15 +210,6 @@
 
         #menu, #endgame {
             text-align: center;
-        }
-
-        #menu {
-            display: block;
-        }
-
-        #endgame {
-            display: none;
-        }
 
         #answer {
             font-size: 2rem;
@@ -242,7 +248,7 @@
     </style>
 </head>
 <body>
-    <div id="menu" >
+    <div class="game-container" id="menu" >
         <h1>Math Challenge</h1>
         <button class="newGame-button" onclick="startGame()">Start Game</button>
     </div>
@@ -272,7 +278,7 @@
             </div>
         </div>
     </div>
-    <div id="endgame">
+    <div class="game-container" id="endgame">
         <h1>Game Over</h1>
         <p>Punteggio: <span id="score">0</span></p>
         <button class="newGame-button" onclick="restartGame()">Restart</button>
