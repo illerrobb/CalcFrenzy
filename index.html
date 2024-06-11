@@ -44,8 +44,9 @@
             cursor: pointer; /* Assicura che i bottoni siano cliccabili */
             font-size: 1.2rem;
             -webkit-appearance: none; /* Rimuove lo stile predefinito dei bottoni su iOS */
-            touch-action: manipulation;
+            touch-action: manipulation;        
         }
+        
 
         button:active {
             transform: translateY(4px);
@@ -172,9 +173,16 @@
             margin: 10px;
             font-family: inherit;
         }
-
+        
+        .emoji-overlay {
+          position: absolute;
+          font-size: 3em; /* Regola la dimensione dell'emoji */
+          cursor: pointer; /* Cambia il cursore del mouse in una manina */
+          transition: opacity 0.2s ease-out; /* Aggiunge una transizione fluida all'opacità */
+        }
+        
         #next-problem {
-            font-size: 1em;
+            font-size: 1.2em;
             color: grey;
         }
 
@@ -234,15 +242,15 @@
         }
 
         /* Media Queries per schermi più piccoli */
-        @media (max-width: 600px) {
+        @media (max-width: 300px) {
             button {
                 font-size: 1rem; 
                 padding: 8px 16px; 
             }
             
             .keyboard button {
-                height: 50px; 
-                font-size: 1.8rem;
+                height: 20px; 
+                font-size: 0.2rem;
             }
 
             #problem {
