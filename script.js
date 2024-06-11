@@ -1,5 +1,6 @@
 let problemElement = document.getElementById('problem');
 let nextProblemElement = document.getElementById('next-problem');
+let oldProblemElement = document.getElementById('old-problem');
 let answerPlaceholderElement = document.getElementById('answer-placeholder');
 let resultElement = document.getElementById('result');
 let timerElement = document.getElementById('timer');
@@ -144,7 +145,14 @@ function displayProblems() {
 
 function handleCorrectAnswer() {
     // Remove the current problem element
-    problemElement.remove();
+    problemElement.id = "old-problem";
+    problemElement.className = "problem";
+    let oldProblemElement = document.getElementById('old-problem');
+
+    setTimeout(() => {
+        oldProblemElement.remove();
+    }, 200)
+    
 
     // Make the next-problem element the new problem element
     nextProblemElement.id = 'problem';
