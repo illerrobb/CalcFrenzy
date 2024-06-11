@@ -9,6 +9,7 @@ let menuElement = document.getElementById('menu');
 let gameElement = document.getElementById('game');
 let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
+let problemContainer = document.querySelector('.problem-container');
 
 let timer;
 let timerDuration = 10;
@@ -384,7 +385,7 @@ function _randomlyReplaceWithEmoji() {
     }, 1000 + Math.random() * 1000/level*0.05);
 }
 
-function randomlyReplaceWithEmoji() {
+function _1randomlyReplaceWithEmoji() {
     const originalHTML = problemElement.innerHTML;
     const originalLevel = level;
     const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
@@ -502,7 +503,34 @@ function _2randomlyReplaceWithEmoji() {
     }, 1000 + Math.random() * 1000/level*0.05);
 }
 
+function randomlyReplaceWithEmoji() {
+  const randomEmojiElement = document.createElement('div');
+  const randomEmoji = animalEmojis[Math.floor(Math.random() * animalEmojis.length)];
+  randomEmojiElement.textContent = randomEmoji;
+  randomEmojiElement.classList.add('emoji-overlay');
 
+  // Posizionamento e rotazione random
+  const containerRect = problemContainer.getBoundingClientRect();
+  const emojiSize = 50; // Dimensione approssimativa dell'emoji
+  const maxX = containerRect.width - 100;
+  const maxY = containerRect.height - 100;
+  const yFromTop = containerRect.top;
+
+  randomEmojiElement.style.left = Math.random() * maxX + yFromTop + 'px';
+  randomEmojiElement.style.top = Math.random() * maxY + yFromTop + 'px';
+  randomEmojiElement.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
+
+  // Aggiunta al DOM e gestione del click per rimuovere
+  problemContainer.appendChild(randomEmojiElement);
+
+  randomEmojiElement.addEventListener('click', () => {
+    randomEmojiElement.style.transition = 'opacity 0.5s ease-out';
+    randomEmojiElement.style.opacity = '0';
+    setTimeout(() => {
+      randomEmojiElement.remove();
+    }, 500);
+  });
+}
 
 function typeNumber(num) {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
