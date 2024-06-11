@@ -10,7 +10,8 @@ let endgameElement = document.getElementById('endgame');
 let scoreElement = document.getElementById('score');
 
 let timer;
-let timeLeft = 10;
+let timerDuration = 100;
+let timeLeft;
 let currentProblem;
 let currentAnswer;
 let nextProblem;
@@ -22,7 +23,7 @@ const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
 
 function startGame() {
     menuElement.style.display = 'none';
-    gameElement.style.display = 'block';
+    gameElement.style.display = 'flex';
     endgameElement.style.display = 'none';
     level = 1;
     score = 0;
@@ -35,7 +36,7 @@ function startGame() {
 
 function restartGame() {
     menuElement.style.display = 'none';
-    gameElement.style.display = 'block';
+    gameElement.style.display = 'flex';
     endgameElement.style.display = 'none';
     level = 1;
     score = 0;
@@ -49,7 +50,7 @@ function restartGame() {
 function endGame() {
     clearInterval(timer);
     gameElement.style.display = 'none';
-    endgameElement.style.display = 'block';
+    endgameElement.style.display = 'flex';
     scoreElement.textContent = score;
 }
 
@@ -211,7 +212,7 @@ function submitAnswer() {
 
 function resetTimer() {
     clearInterval(timer);
-    timeLeft = 10;
+    timeLeft = timerDuration;
     resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
     timer = setInterval(updateTimer, 1000);
@@ -219,7 +220,7 @@ function resetTimer() {
 
 function updateTimer() {
     timeLeft--;
-    timerElement.style.width = ((timeLeft)/10) * 100 + '%';
+    timerElement.style.width = ((timeLeft)/timerDuration) * 100 + '%';
     resultElement.textContent = timeLeft;
     if (timeLeft <= 0) {
         clearInterval(timer);
@@ -231,13 +232,13 @@ function updateTimer() {
 function addTime(seconds) {
     timeLeft += seconds;
     // Ensure timeLeft doesn't exceed the initial max value (e.g., 10 seconds in this case)
-    if (timeLeft > 10) timeLeft = 10;
+    if (timeLeft > timerDuration) timeLeft = timerDuration;
 
     // If the timer is not already running, start it
     timer = setInterval(updateTimer, 1000);
     
     // Update the timer visuals
-    timerElement.style.width = ((timeLeft) / 10) * 100 + '%';
+    timerElement.style.width = ((timeLeft) / timerDuration) * 100 + '%';
     resultElement.textContent = timeLeft;
 
 
