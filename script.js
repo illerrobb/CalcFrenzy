@@ -19,6 +19,7 @@ let currentAnswer;
 let nextProblem;
 let nextAnswer;
 let isReplacing = 0;
+let isPlaying;
 const disturbanceFrequency = Math.min(level / 10, 0.5);
 const disturbanceEffects = ['shake', 'flip', 'hideKeys', 'addSkullButton'];
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
@@ -34,6 +35,7 @@ function startGame() {
     displayProblems();
     resetTimer();
     applyRandomDisturbance();  // Start the autonomous disturbances
+    isPlaying = 1;
 }
 
 function restartGame() {
@@ -47,6 +49,7 @@ function restartGame() {
     displayProblems();
     resetTimer();
     clearAnswer();
+    isPlaying = 1;
 }
 
 function endGame() {
@@ -54,6 +57,7 @@ function endGame() {
     gameElement.style.display = 'none';
     endgameElement.style.display = 'flex';
     scoreElement.textContent = score;
+    isPlaying = 0;
 }
 
 function generateProblem() {
@@ -512,12 +516,13 @@ function randomlyReplaceWithEmoji() {
   // Posizionamento e rotazione random
   const containerRect = problemContainer.getBoundingClientRect();
   const emojiSize = 50; // Dimensione approssimativa dell'emoji
-  const maxX = containerRect.width - 100;
-  const maxY = containerRect.height - 100;
+  const maxX = containerRect.width - 100 - emojiSize;
+  const maxY = containerRect.height - 100 - emojiSize;
   const yFromTop = containerRect.top;
 
   randomEmojiElement.style.left = Math.random() * maxX + yFromTop + 'px';
   randomEmojiElement.style.top = Math.random() * maxY + yFromTop + 'px';
+  randomEmojiElement.style.fontSize = (2.5 + 2 * Math.random()) + 'em';
   randomEmojiElement.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
 
   // Aggiunta al DOM e gestione del click per rimuovere
@@ -543,6 +548,7 @@ function typeNumber(num) {
 function typeRandomNumber() {
     const randomNum = Math.floor(Math.random() * 10);
     typeNumber(randomNum);
+    
 }
 
 function clearAnswer() {
