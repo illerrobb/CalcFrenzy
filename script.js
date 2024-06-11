@@ -1,6 +1,5 @@
 let problemElement = document.getElementById('problem');
 let nextProblemElement = document.getElementById('next-problem');
-let oldProblemElement = document.getElementById('old-problem');
 let answerPlaceholderElement = document.getElementById('answer-placeholder');
 let resultElement = document.getElementById('result');
 let timerElement = document.getElementById('timer');
@@ -18,12 +17,11 @@ let currentProblem;
 let currentAnswer;
 let nextProblem;
 let nextAnswer;
-let isReplacing = 0;
 let isPlaying;
-const disturbanceFrequency = Math.min(level / 10, 0.5);
-const disturbanceEffects = ['hideKeys', 'addSkullButton'];
+const disturbanceFrequency = 0.15; // Probabilità di disturbo ad ogni secondo
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
 
+// *** FUNZIONI DI GIOCO ***
 function startGame() {
     menuElement.style.display = 'none';
     gameElement.style.display = 'flex';
@@ -34,23 +32,16 @@ function startGame() {
     generateCurrentAndNextProblem();
     displayProblems();
     resetTimer();
-    applyRandomDisturbance();  // Start the autonomous disturbances
-    isPlaying = 1;
+    startDisturbances();
+    isPlaying = true;
 }
 
 function restartGame() {
-    menuElement.style.display = 'none';
-    gameElement.style.display = 'flex';
-    endgameElement.style.display = 'none';
-    level = 1;
-    score = 0;
-    levelElement.textContent = level;
-    generateCurrentAndNextProblem();
-    displayProblems();
-    resetTimer();
-    clearAnswer();
-    clearEmoji();
-    isPlaying = 1;
+    clearInterval(timer);
+    stopDisturbances(); // Assicurati di fermare i disturbi
+    resetKeys(); // Reimposta i tasti allo stato originale
+    clearEmoji(); // Rimuovi eventuali emoji residue
+    startGame(); // Avvia una nuova partita
 }
 
 function endGame() {
@@ -59,7 +50,7 @@ function endGame() {
     endgameElement.style.display = 'flex';
     scoreElement.textContent = score;
     clearEmoji();
-    isPlaying = 0;
+    isPlaying = false;
 }
 
 function generateProblem() {
@@ -259,97 +250,115 @@ function addTime(seconds) {
 
 }
 
+// *** FUNZIONI DISTURBO ***
+function startDisturbances() {
+    setInterval(applyRandomDisturbance, 1000); // Controlla ogni secondo per un nuovo disturbo
+}
+
+function stopDisturbances() {
+    // (Implementazione per interrompere i disturbi, ad esempio, usando clearInterval)
+}
+
 function applyRandomDisturbance() {
-    const disturbanceInterval = 5000 + Math.random() * 5000/level*0.05; // Random interval between 5 and 10 seconds
+    if (Math.random() < disturbanceFrequency && isPlaying) {
+      const disturbanceFunctions = [shakeProblem, flipProblem, hideRandomKey, addSkullButton, randomlyReplaceWithEmoji];
+      const randomIndex = Math.floor(Math.random() * disturbanceFunctions.length);
+      disturbanceFunctions[randomIndex]();
+    }
+}
+  
 
-    function applyDisturbance() {
-        // Ensure problemElement is correctly referenced
-        problemElement = document.getElementById('problem');
-        console.log('Applying disturbance to:', problemElement); // Debugging: output problem element
+function shakeProblem() {
+    problemElement.style.animation = 'shake 0.5s';
+    setTimeout(() => problemElement.style.animation = '', 500);
+}
 
-        const effect = disturbanceEffects[Math.floor(Math.random() * disturbanceEffects.length)];
-        //problemElement.classList.remove('drop');
-        if (effect === 'shake') {
-            console.log('Applying shake effect'); // Debugging: output disturbance effect
-            problemElement.style.animation = 'shake 0.5s';
-            setTimeout(() => problemElement.style.animation = '', 500);
-        } else if (effect === 'flip') {
-            console.log('Applying flip effect'); // Debugging: output disturbance effect
-            problemElement.style.animation = 'flip 1s';
-            setTimeout(() => problemElement.style.animation = '', 1000);
-        } else if (effect === 'hideKeys') {
-            const keys = document.querySelectorAll('.number-button');
-            const randomKey = keys[Math.floor(Math.random() * keys.length)];
-            const originalText = randomKey.textContent;
+function flipProblem() {
+    problemElement.style.animation = 'flip 1s';
+    setTimeout(() => problemElement.style.animation = '', 1000);
+}
 
+function hideRandomKey() {
+    const keyId = `key_${Math.floor(Math.random() * 10) + 1}`; // Genera un ID casuale da num_1 a num_10
+    const randomKey = document.getElementById(keyId);
+
+    if (randomKey) { // Assicurati che la chiave esista
+        const originalText = randomKey.textContent;
+
+        randomKey.style.transition = 'transform 0.25s';
+        randomKey.style.transform = 'rotateY(90deg)';
+
+        setTimeout(() => {
+            randomKey.classList.add('hideKeys-button');
+            randomKey.textContent = '🎲';
+            randomKey.onclick = typeRandomNumber;
+            randomKey.style.transform = 'rotateY(0)';
+            randomKey.style.transition = '';
+        }, 250);
+
+        setTimeout(() => {
             randomKey.style.transition = 'transform 0.25s';
             randomKey.style.transform = 'rotateY(90deg)';
-
             setTimeout(() => {
-                randomKey.classList.add('hideKeys-button');
-                randomKey.textContent = '🎲';
-                randomKey.onclick = typeRandomNumber;
-                randomKey.style.transform = 'rotateY(0)';
-                randomKey.style.transition = '';
-                randomKey.style.transform = '';
+                resetKey(randomKey, originalText);
             }, 250);
+        }, 3000);
+    }
+}
 
-            setTimeout(() => {
-                randomKey.style.transition = 'transform 0.25s';
+function addSkullButton() {
+    const keyId = `key_${Math.floor(Math.random() * 10 + 1)}`; // Genera un ID casuale da key_1 a 9
+    const randomKey = document.getElementById(keyId);
+
+    if (randomKey) { // Assicurati che la chiave esista
+        const originalText = randomKey.textContent;
+
+        randomKey.dataset.originalText = originalText;
+        //randomKey.style.transition = 'transform 0.25s';
+        randomKey.style.transform = 'rotateY(90deg)';
+
+        setTimeout(() => {
+            randomKey.textContent = '☠️';
+            randomKey.classList.add('skull-button');
+            randomKey.onclick = endGame;
+            randomKey.style.transform = 'rotateY(0)';
+        }, 250);
+
+        setTimeout(() => {
+            if (randomKey.parentNode) {
+                //randomKey.style.transition = 'transform 0.25s';
                 randomKey.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
-                    randomKey.style.backgroundColor = '';
-                    randomKey.textContent = originalText;
-                    randomKey.onclick = function() { typeNumber(originalText); };
-                    randomKey.style.transform = 'rotateY(0)';
-                    randomKey.style.transition = '';
-                    randomKey.style.transform = '';
-                    randomKey.classList.remove('hideKeys-button');
+                    resetKey(randomKey, originalText);
                 }, 250);
-            }, 3000);
-        } else if (effect === 'addSkullButton') {
-            const keys = document.querySelectorAll('.number-button');
-            const randomKey = keys[Math.floor(Math.random() * keys.length)];
-            const originalText = randomKey.textContent;
-
-            randomKey.dataset.originalText = originalText;
-            randomKey.style.transition = 'transform 0.25s';
-            randomKey.style.transform = 'rotateY(90deg)';
-
-            setTimeout(() => {
-                randomKey.textContent = '☠️';
-                randomKey.classList.add('skull-button');
-                randomKey.onclick = endGame;
-                randomKey.style.transform = 'rotateY(0)';
-                randomKey.style.transform = '';
-            }, 250);
-
-            setTimeout(() => {
-                if (randomKey.parentNode) {
-                    randomKey.style.transition = 'transform 0.25s';
-                    randomKey.style.transform = 'rotateY(90deg)';
-                    setTimeout(() => {
-                        randomKey.textContent = originalText;
-                        randomKey.classList.remove('skull-button');
-                        randomKey.onclick = function() { typeNumber(originalText); };
-                        randomKey.style.transform = 'rotateY(0)';
-                        randomKey.style.transition = '';
-                        randomKey.style.transform = '';
-                    }, 250);
-                }
-            }, 3000);
-        }
-        
-        if (isReplacing == 0) {
-            randomlyReplaceWithEmoji();
-        }
-
-        // Schedule the next disturbance
-        setTimeout(applyDisturbance, disturbanceInterval);
+            }
+        }, 3000);
     }
+}
 
-    // Start the disturbance cycle
-    setTimeout(applyDisturbance, disturbanceInterval);
+function resetKey(keyElement, originalText) {
+    keyElement.style.backgroundColor = '';
+    keyElement.textContent = originalText;
+    keyElement.onclick = function() { typeNumber(originalText); };
+    keyElement.style.transform = 'rotateY(0)';
+    keyElement.style.transition = '';
+    keyElement.style.transform = '';
+    keyElement.classList.remove('hideKeys-button', 'skull-button');
+}
+
+function resetKeys() {
+    for (let i = 1; i <= 10; i++) {
+        const keyId = `key_${i}`;
+        const keyElement = document.getElementById(keyId);
+        if (keyElement) {
+            if (keyId == 10) {
+                resetKey(keyElement, 10)  
+            }
+            else {
+                resetKey(keyElement, i); // Reimposta ogni tasto al suo stato originale
+            }
+        }
+    }
 }
 
 function randomlyReplaceWithEmoji() {
@@ -383,8 +392,10 @@ function randomlyReplaceWithEmoji() {
 }
 
 function clearEmoji() {
-    const randomEmojiElement = querySelector('.emoji-overlay');
-    randomEmojiElement.remove();
+    const emojiElements = document.querySelectorAll('.emoji-overlay');
+    emojiElements.forEach(function(element) {
+        element.remove();
+    });
 }
 
 function typeNumber(num) {
