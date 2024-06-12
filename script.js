@@ -477,6 +477,7 @@ function lockKey() {
                 setKeyDisturbance(keyId, false);
                 randomKey.onclick = function() { typeNumber(originalText); }; 
                 lockEmoji.remove(); // Rimuovi l'emoji del lucchetto
+                addTime(2);
             }
         };
     }
