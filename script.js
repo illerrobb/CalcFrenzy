@@ -18,10 +18,32 @@ let currentAnswer;
 let nextProblem;
 let nextAnswer;
 let isPlaying;
-const disturbanceType = [/*shakeProblem, flipProblem,*/ hideRandomKey, addSkullButton, randomlyReplaceWithEmoji, swapKeys, lockKey];
-const disturbanceFrequency = 0.15; // Probabilità di disturbo ad ogni secondo
+let disturbanceActive = false; // Flag per indicare se un disturbo è attivo
+let disturbanceIntervals = [];
+
+// Frequenze di disturbo (valori tra 0 e 1)
+const disturbanceFrequencies = {
+    hideRandomKey: 0.15,
+    addSkullButton: 0.1,
+    randomlyReplaceWithEmoji: 0.2,
+    swapKeys: 0.12,
+    lockKey: 0.08,
+    feedTheAnimal: 0.1
+};
+
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
 let keysUnderDisturbance = {}; // Oggetto per tenere traccia dei tasti con disturbi attivi
+
+// Dati per il gioco "Feed the Animal"
+const animalData = {
+    '🐶': ['🍖', '🍎', '🥕'], // Cane: osso, mela, carota
+    '🐱': ['🐟', '🥛', '🌿'], // Gatto: pesce, latte, erba
+    '🐭': ['🧀', '🍪', '🍓'], // Topo: formaggio, biscotto, fragola
+    '🐹': ['🌻', '🌽', '🥒'], // Criceto: semi di girasole, mais, cetriolo
+    '🐰': ['🥕', '🥬', '🥦'], // Coniglio: carota, lattuga, broccoli
+    '🦊': ['🍗', '🍇', '🍄'], // Volpe: coscia di pollo, uva, fungo
+    '🐻': ['🍯', '🐟', '🐝']  // Orso: miele, pesce, ape
+};
 
 // *** FUNZIONI DI GIOCO ***
 function startGame() {
@@ -240,56 +262,61 @@ function updateTimer() {
 
 function addTime(seconds) {
     timeLeft += seconds;
-    // Ensure timeLeft doesn't exceed the initial max value (e.g., 10 seconds in this case)
+    // Ensure timeLeft doesn't exceed the initial max value
     if (timeLeft > timerDuration) timeLeft = timerDuration;
-
-    // If the timer is not already running, start it
-    timer = setInterval(updateTimer, 1000);
-    
     // Update the timer visuals
     timerElement.style.width = ((timeLeft) / timerDuration) * 100 + '%';
     resultElement.textContent = timeLeft;
-
-
 }
 
 // *** FUNZIONI DISTURBO ***
 function startDisturbances() {
-    setInterval(applyRandomDisturbance, 1000); // Controlla ogni secondo per un nuovo disturbo
+    for (const disturbance in disturbanceFrequencies) {
+        disturbanceIntervals.push(setInterval(() => {
+            applyDisturbance(disturbance, disturbanceFrequencies[disturbance]);
+        }, 1000));
+    }
 }
 
 function stopDisturbances() {
-    // (Implementazione per interrompere i disturbi, ad esempio, usando clearInterval)
+    disturbanceIntervals.forEach(intervalId => clearInterval(intervalId));
+    disturbanceIntervals = [];
 }
 
-function applyRandomDisturbance() {
+function applyDisturbance(disturbanceName, frequency) {
+    if (Math.random() < frequency && isPlaying && !disturbanceActive) {
+        disturbanceActive = true;
+        switch (disturbanceName) {
+            case 'hideRandomKey':
+                hideRandomKey();
+                break;
+            case 'addSkullButton':
+                addSkullButton();
+                break;
+            case 'randomlyReplaceWithEmoji':
+                randomlyReplaceWithEmoji();
+                break;
+            case 'swapKeys':
+                swapKeys();
+                break;
+            case 'lockKey':
+                lockKey();
+                break;
+            case 'feedTheAnimal':
+                feedTheAnimal();
+                break;
+        }
+    }
+}
+
+/*function applyRandomDisturbance() {
     if (Math.random() < disturbanceFrequency && isPlaying) {
       //const disturbanceFunctions = [shakeProblem, flipProblem, hideRandomKey, addSkullButton, randomlyReplaceWithEmoji];
       const randomIndex = Math.floor(Math.random() * disturbanceType.length);
       disturbanceType[randomIndex]();
     }
-}
-  
-
-function shakeProblem() {
-    problemElement.style.animation = 'shake 0.5s';
-    setTimeout(() => problemElement.style.animation = '', 500);
-}
-
-function flipProblem() {
-    problemElement.style.animation = 'flip 1s';
-    setTimeout(() => problemElement.style.animation = '', 1000);
-}
-
-function isKeyUnderDisturbance(keyId) {
-    return keysUnderDisturbance[keyId];
-}
-
-function setKeyDisturbance(keyId, value) {
-    keysUnderDisturbance[keyId] = value;
-}
-
-function applyRandomDisturbance() {
+}*/
+/*function applyRandomDisturbance() {
     if (Math.random() < disturbanceFrequency && isPlaying) {
         const availableDisturbances = disturbanceType.filter(disturbance => {
             // Escludi i disturbi che interessano tasti già interessati
@@ -305,6 +332,123 @@ function applyRandomDisturbance() {
             availableDisturbances[randomIndex]();
             console.log('Disturbance:', );
         }
+    }
+}*/
+
+function isKeyUnderDisturbance(keyId) {
+    return keysUnderDisturbance[keyId];
+}
+
+function setKeyDisturbance(keyId, value) {
+    keysUnderDisturbance[keyId] = value;
+}
+
+function shakeProblem() {
+    problemElement.style.animation = 'shake 0.5s';
+    setTimeout(() => problemElement.style.animation = '', 500);
+}
+
+function flipProblem() {
+    problemElement.style.animation = 'flip 1s';
+    setTimeout(() => problemElement.style.animation = '', 1000);
+}
+
+
+function feedTheAnimal() {
+    // Crea l'overlay scuro
+    const overlay = document.createElement('div');
+    overlay.classList.add('feed-the-animal-overlay');
+
+    // Scegli un animale casuale
+    const animalKeys = Object.keys(animalData);
+    const randomAnimalIndex = Math.floor(Math.random() * animalKeys.length);
+    const animal = animalKeys[randomAnimalIndex];
+
+    // Crea l'elemento animale
+    const animalElement = document.createElement('div');
+    animalElement.classList.add('feed-the-animal-animal');
+    animalElement.textContent = animal;
+
+    // Crea gli elementi cibo in ordine casuale
+    const foodEmojis = [...animalData[animal]]; 
+    shuffleArray(foodEmojis); 
+
+    const foodElements = foodEmojis.map(food => {
+        const foodElement = document.createElement('div');
+        foodElement.classList.add('feed-the-animal-food');
+        foodElement.textContent = food;
+        foodElement.setAttribute('draggable', true);
+
+        // Aggiungi eventi di trascinamento
+        foodElement.ondragstart = (event) => {
+            event.dataTransfer.setData('text/plain', food);
+            // Nascondi l'elemento originale durante il trascinamento
+            event.target.style.display = 'none'; 
+            
+            // Crea un'immagine dell'emoji che segue il cursore
+            const dragImage = document.createElement('div');
+            dragImage.textContent = food;
+            dragImage.style.position = 'absolute';
+            dragImage.style.fontSize = '3em'; 
+            dragImage.style.pointerEvents = 'none'; 
+            document.body.appendChild(dragImage);
+
+            event.dataTransfer.setDragImage(dragImage, 0, 0); 
+        };
+
+        foodElement.ondragend = (event) => {
+            // Ripristina la visibilità dell'elemento originale
+            event.target.style.display = ''; 
+            // Rimuovi l'immagine di trascinamento
+            document.body.removeChild(document.querySelector('.feed-the-animal-food')); 
+        };
+
+        return foodElement;
+    });
+
+    // Crea il contenitore per il cibo
+    const foodContainer = document.createElement('div');
+    foodContainer.style.display = 'flex';
+    foodContainer.style.marginTop = '20px';
+    foodElements.forEach(foodElement => foodContainer.appendChild(foodElement));
+
+    // Aggiungi l'animale e il cibo all'overlay
+    const popupContainer = document.createElement('div');
+    popupContainer.classList.add('feed-the-animal-popup');
+    popupContainer.appendChild(animalElement);
+    popupContainer.appendChild(foodContainer);
+    overlay.appendChild(popupContainer);
+
+    // Gestisci l'evento di rilascio sull'animale
+    animalElement.ondragover = (event) => event.preventDefault();
+    animalElement.ondrop = (event) => {
+        event.preventDefault();
+        const droppedFood = event.dataTransfer.getData('text/plain');
+
+        if (animalData[animal][0] === droppedFood) {
+            animalElement.textContent = '😋';
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                disturbanceActive = false;
+            }, 500);
+            addTime(2);
+        } else {
+            animalElement.style.animation = 'shake 0.2s';
+            setTimeout(() => animalElement.style.animation = '', 200);
+
+            const originalFoodElement = foodElements.find(el => el.textContent === droppedFood);
+            foodContainer.appendChild(originalFoodElement);
+        }
+    };
+
+    document.body.appendChild(overlay);
+}
+
+// Funzione per mescolare un array
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
 }
 
