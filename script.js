@@ -18,8 +18,10 @@ let currentAnswer;
 let nextProblem;
 let nextAnswer;
 let isPlaying;
+const disturbanceType = [/*shakeProblem, flipProblem,*/ hideRandomKey, addSkullButton, randomlyReplaceWithEmoji, swapKeys, lockKey];
 const disturbanceFrequency = 0.15; // Probabilità di disturbo ad ogni secondo
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
+let keysUnderDisturbance = {}; // Oggetto per tenere traccia dei tasti con disturbi attivi
 
 // *** FUNZIONI DI GIOCO ***
 function startGame() {
@@ -191,6 +193,7 @@ function handleCorrectAnswer() {
     nextProblemElement.innerHTML = `${nextProblem} = ?`;
 }
 
+
 function submitAnswer() {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
     let userAnswer = parseFloat(answerPlaceholderElement.textContent);
@@ -261,9 +264,9 @@ function stopDisturbances() {
 
 function applyRandomDisturbance() {
     if (Math.random() < disturbanceFrequency && isPlaying) {
-      const disturbanceFunctions = [shakeProblem, flipProblem, hideRandomKey, addSkullButton, randomlyReplaceWithEmoji];
-      const randomIndex = Math.floor(Math.random() * disturbanceFunctions.length);
-      disturbanceFunctions[randomIndex]();
+      //const disturbanceFunctions = [shakeProblem, flipProblem, hideRandomKey, addSkullButton, randomlyReplaceWithEmoji];
+      const randomIndex = Math.floor(Math.random() * disturbanceType.length);
+      disturbanceType[randomIndex]();
     }
 }
   
@@ -278,12 +281,44 @@ function flipProblem() {
     setTimeout(() => problemElement.style.animation = '', 1000);
 }
 
-function hideRandomKey() {
-    const keyId = `key_${Math.floor(Math.random() * 10) + 1}`; // Genera un ID casuale da num_1 a num_10
-    const randomKey = document.getElementById(keyId);
+function isKeyUnderDisturbance(keyId) {
+    return keysUnderDisturbance[keyId];
+}
 
-    if (randomKey) { // Assicurati che la chiave esista
-        const originalText = randomKey.textContent;
+function setKeyDisturbance(keyId, value) {
+    keysUnderDisturbance[keyId] = value;
+}
+
+function applyRandomDisturbance() {
+    if (Math.random() < disturbanceFrequency && isPlaying) {
+        const availableDisturbances = disturbanceType.filter(disturbance => {
+            // Escludi i disturbi che interessano tasti già interessati
+            return !Object.keys(keysUnderDisturbance).some(keyId => {
+                return disturbance.name === 'hideRandomKey' && keyId.startsWith('key_') ||
+                       disturbance.name === 'addSkullButton' && keyId.startsWith('key_') ||
+                       disturbance.name === 'swapKeys' && keyId.startsWith('key_');
+            });
+        });
+
+        if (availableDisturbances.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableDisturbances.length);
+            availableDisturbances[randomIndex]();
+            console.log('Disturbance:', );
+        }
+    }
+}
+
+function hideRandomKey() {
+    const keys = Object.keys(keysUnderDisturbance);
+    const availableKeys = Array.from(document.querySelectorAll('.number-button')).filter(key => !keys.includes(key.id));
+
+    if (availableKeys.length > 0) {
+        const randomKeyIndex = Math.floor(Math.random() * availableKeys.length);
+        const randomKey = availableKeys[randomKeyIndex];
+        const keyId = randomKey.id;
+        const originalText = parseInt(randomKey.textContent, 10);
+
+        setKeyDisturbance(keyId, true);
 
         randomKey.style.transition = 'transform 0.25s';
         randomKey.style.transform = 'rotateY(90deg)';
@@ -301,20 +336,25 @@ function hideRandomKey() {
             randomKey.style.transform = 'rotateY(90deg)';
             setTimeout(() => {
                 resetKey(randomKey, originalText);
+                setKeyDisturbance(keyId, false); // Reimposta lo stato del tasto
             }, 250);
         }, 3000);
     }
 }
 
 function addSkullButton() {
-    const keyId = `key_${Math.floor(Math.random() * 10 + 1)}`; // Genera un ID casuale da key_1 a 9
-    const randomKey = document.getElementById(keyId);
+    const keys = Object.keys(keysUnderDisturbance);
+    const availableKeys = Array.from(document.querySelectorAll('.number-button')).filter(key => !keys.includes(key.id));
 
-    if (randomKey) { // Assicurati che la chiave esista
-        const originalText = randomKey.textContent;
+    if (availableKeys.length > 0) {
+        const randomKeyIndex = Math.floor(Math.random() * availableKeys.length);
+        const randomKey = availableKeys[randomKeyIndex];
+        const keyId = randomKey.id;
+        const originalText = parseInt(randomKey.textContent, 10);
+
+        setKeyDisturbance(keyId, true); 
 
         randomKey.dataset.originalText = originalText;
-        //randomKey.style.transition = 'transform 0.25s';
         randomKey.style.transform = 'rotateY(90deg)';
 
         setTimeout(() => {
@@ -326,13 +366,119 @@ function addSkullButton() {
 
         setTimeout(() => {
             if (randomKey.parentNode) {
-                //randomKey.style.transition = 'transform 0.25s';
                 randomKey.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
                     resetKey(randomKey, originalText);
+                    setKeyDisturbance(keyId, false); // Reimposta lo stato del tasto
                 }, 250);
             }
         }, 3000);
+    }
+}
+
+function swapKeys() {
+    const numberKeys = Array.from(document.querySelectorAll('.number-button:not(.hideKeys-button):not(.skull-button)'));
+
+    function getRandomKeyIndex(excludeIndex = -1) {
+        let index = Math.floor(Math.random() * numberKeys.length);
+        while (index === excludeIndex) {
+            index = Math.floor(Math.random() * numberKeys.length);
+        }
+        return index;
+    }
+
+    // Scegli due tasti casuali, assicurandoti che siano diversi
+    let key1Index = getRandomKeyIndex();
+    let key2Index = getRandomKeyIndex(key1Index);
+
+    // Se un tasto ha un disturbo attivo, scegline un altro a caso
+    if (isKeyUnderDisturbance(numberKeys[key1Index].id)) {
+        key1Index = getRandomKeyIndex(key2Index); // Assicurati che key1Index sia diverso da key2Index
+    } else if (isKeyUnderDisturbance(numberKeys[key2Index].id)) {
+        key2Index = getRandomKeyIndex(key1Index); // Assicurati che key2Index sia diverso da key1Index
+    }
+
+    const key1 = numberKeys[key1Index];
+    const key2 = numberKeys[key2Index];
+
+    // Imposta i tasti come in disturbo
+    setKeyDisturbance(key1.id, true);
+    setKeyDisturbance(key2.id, true);
+
+    const originalText1 = key1.textContent;
+    const originalText2 = key2.textContent;
+
+    // Applica lo stile viola e cambia l'ombra
+    key1.classList.add('swap-button');
+    key2.classList.add('swap-button');
+
+
+    // Scambia i testi
+    key1.textContent = originalText2;
+    key2.textContent = originalText1;
+
+    // Esegui il flip per lo scambio (opzionale, solo visivo)
+    key1.style.transition = 'transform 0.5s';
+    key2.style.transition = 'transform 0.5s';
+    key1.style.transform = 'rotateY(180deg)';
+    key2.style.transform = 'rotateY(180deg)';
+    setTimeout(() => {
+        key1.style.transform = 'rotateY(0deg)';
+        key2.style.transform = 'rotateY(0deg)';
+    }, 500);
+
+    // Ripristina lo stile originale dopo un ritardo
+    setTimeout(() => {
+        resetKey(key1, originalText1);
+        resetKey(key2, originalText2);
+        key1.style.transform = 'rotateY(0deg)';
+        key2.style.transform = 'rotateY(0deg)';
+        setKeyDisturbance(key1.id, false);
+        setKeyDisturbance(key2.id, false);
+    }, 3000);
+}
+
+function lockKey() {
+    const numberKeys = Array.from(document.querySelectorAll('.number-button:not(.hideKeys-button):not(.skull-button)'));
+
+    // Trova un tasto senza disturbi attivi
+    const availableKeys = numberKeys.filter(key => !isKeyUnderDisturbance(key.id));
+
+    if (availableKeys.length > 0) {
+        const randomKeyIndex = Math.floor(Math.random() * availableKeys.length);
+        const randomKey = availableKeys[randomKeyIndex];
+        const keyId = randomKey.id;
+        const originalText = randomKey.textContent;
+
+        setKeyDisturbance(keyId, true);
+
+        // Crea l'elemento emoji del lucchetto
+        const lockEmoji = document.createElement('span');
+        lockEmoji.textContent = '🔒';
+        lockEmoji.style.position = 'absolute';
+        lockEmoji.style.fontSize = '1em'; 
+
+        // Applica lo stile al tasto bloccato
+        randomKey.classList.add('lock-button'); // applica 
+        randomKey.appendChild(lockEmoji); 
+
+        let tapCount = 0;
+        const maxTaps = 3;
+
+        // Aggiungi un gestore di eventi 'click' al tasto bloccato
+        randomKey.onclick = () => {
+            tapCount++;
+            randomKey.style.animation = 'shake 0.1s'; // Fai shakerare il pulsante ad ogni tocco
+            setTimeout(() => randomKey.style.animation = '', 200);
+
+            if (tapCount >= maxTaps) {
+                // Ripristina il tasto
+                resetKey(randomKey, originalText);
+                setKeyDisturbance(keyId, false);
+                randomKey.onclick = function() { typeNumber(originalText); }; 
+                lockEmoji.remove(); // Rimuovi l'emoji del lucchetto
+            }
+        };
     }
 }
 
@@ -343,7 +489,7 @@ function resetKey(keyElement, originalText) {
     keyElement.style.transform = 'rotateY(0)';
     keyElement.style.transition = '';
     keyElement.style.transform = '';
-    keyElement.classList.remove('hideKeys-button', 'skull-button');
+    keyElement.classList.remove('hideKeys-button', 'skull-button', 'swap-button', 'lock-button');
 }
 
 function resetKeys() {
@@ -351,14 +497,16 @@ function resetKeys() {
         const keyId = `key_${i}`;
         const keyElement = document.getElementById(keyId);
         if (keyElement) {
-            if (keyId == 10) {
-                resetKey(keyElement, 10)  
+            if (i == 10) {
+                resetKey(keyElement, 0)  
             }
             else {
                 resetKey(keyElement, i); // Reimposta ogni tasto al suo stato originale
             }
         }
     }
+    // Resetta lo stato dei tasti con disturbi attivi
+    keysUnderDisturbance = {}; 
 }
 
 function randomlyReplaceWithEmoji() {
