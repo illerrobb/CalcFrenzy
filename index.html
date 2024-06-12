@@ -20,7 +20,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Arial", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; 
             display: flex;
-            justify-content: center;
+            /*justify-content: center;*/
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
@@ -198,6 +198,44 @@
           font-size: 3em; /* Regola la dimensione dell'emoji */
           cursor: pointer; /* Cambia il cursore del mouse in una manina */
           transition: opacity 0.2s ease-out; /* Aggiunge una transizione fluida all'opacità */
+        }
+        .feed-the-animal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        
+        /* Contenitore del popup */
+        .feed-the-animal-popup {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        /* Emoji dell'animale */
+        .feed-the-animal-animal {
+            font-size: 6em;
+            margin-bottom: 20px;
+        }
+        
+        /* Emoji del cibo */
+        .feed-the-animal-food {
+            font-size: 3em;
+            margin: 10px;
+            cursor: grab; /* Cambia il cursore del mouse quando si trascina */
+        }
+        
+        /* Stile per l'emoji del cibo durante il trascinamento */
+        .feed-the-animal-food:active {
+            opacity: 1;
         }
         
         #next-problem {
