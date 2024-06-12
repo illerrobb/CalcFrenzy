@@ -32,17 +32,17 @@ const disturbanceFrequencies = {
 };
 
 const animalEmojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻'];
-let keysUnderDisturbance = {}; // Oggetto per tenere traccia dei tasti con disturbi attivi
+let keysUnderDisturbance = {}; 
 
 // Dati per il gioco "Feed the Animal"
 const animalData = {
-    '🐶': ['🍖', '🍎', '🥕'], // Cane: osso, mela, carota
-    '🐱': ['🐟', '🥛', '🌿'], // Gatto: pesce, latte, erba
-    '🐭': ['🧀', '🍪', '🍓'], // Topo: formaggio, biscotto, fragola
-    '🐹': ['🌻', '🌽', '🥒'], // Criceto: semi di girasole, mais, cetriolo
-    '🐰': ['🥕', '🥬', '🥦'], // Coniglio: carota, lattuga, broccoli
-    '🦊': ['🍗', '🍇', '🍄'], // Volpe: coscia di pollo, uva, fungo
-    '🐻': ['🍯', '🐟', '🐝']  // Orso: miele, pesce, ape
+    '🐶': ['🍖', '🍎', '🥕'],
+    '🐱': ['🐟', '🥛', '🌿'],
+    '🐭': ['🧀', '🍪', '🍓'],
+    '🐹': ['🌻', '🌽', '🥒'],
+    '🐰': ['🥕', '🥬', '🥦'],
+    '🦊': ['🍗', '🍇', '🍄'],
+    '🐻': ['🍯', '🐟', '🐝']
 };
 
 // *** FUNZIONI DI GIOCO ***
@@ -62,10 +62,10 @@ function startGame() {
 
 function restartGame() {
     clearInterval(timer);
-    stopDisturbances(); // Assicurati di fermare i disturbi
-    resetKeys(); // Reimposta i tasti allo stato originale
-    clearEmoji(); // Rimuovi eventuali emoji residue
-    startGame(); // Avvia una nuova partita
+    stopDisturbances();
+    resetKeys();
+    clearEmoji();
+    startGame();
 }
 
 function endGame() {
@@ -127,7 +127,7 @@ function generateProblem() {
 
     let expression;
     let result;
-    const maxResult = 10 + level * 0.5; // Incrementa la difficoltà con il livello
+    const maxResult = 10 + level * 0.5; 
 
     do {
         const complexProbability = Math.min(level / 100, 0.5);
@@ -156,8 +156,8 @@ function generateCurrentAndNextProblem() {
     nextProblem = next.expression;
     nextAnswer = next.result;
     
-    console.log('nextAnswer:', nextAnswer); // Debugging: output expected answer
-    console.log('currentAnswer:', currentAnswer); // Debugging: output expected answer
+    console.log('nextAnswer:', nextAnswer); 
+    console.log('currentAnswer:', currentAnswer); 
 }
 
 function displayProblems() {
@@ -166,7 +166,6 @@ function displayProblems() {
 }
 
 function handleCorrectAnswer() {
-    // Remove the current problem element
     problemElement.id = "old-problem";
     problemElement.className = "problem";
     let oldProblemElement = document.getElementById('old-problem');
@@ -176,26 +175,19 @@ function handleCorrectAnswer() {
     }, 200)
     
 
-    // Make the next-problem element the new problem element
     nextProblemElement.id = 'problem';
     nextProblemElement.className = 'problem';
     nextProblemElement.innerHTML = `${nextProblem} = <span id="answer-placeholder">?</span>`;
-    //nextProblemElement.style.animation = 'drop 0.5s';
-    //setTimeout(() => nextProblemElement.style.animation = '', 500);
     
-    // Create a new next-problem element
     let newNextProblemElement = document.createElement('p');
     newNextProblemElement.id = 'next-problem';
     newNextProblemElement.className = 'problem';
 
-    // Prepend the new next-problem element before the new problem element
     document.querySelector('.problem-container').prepend(newNextProblemElement);
 
-    // Update the problem elements
     problemElement = document.getElementById('problem');
     nextProblemElement = document.getElementById('next-problem');
     
-    // Animate the elements
     problemElement.style.animation = 'drop 0.5s';
     setTimeout(() => problemElement.style.animation = '', 500);       
     nextProblemElement.style.animation = 'drop 0.5s';
@@ -204,24 +196,21 @@ function handleCorrectAnswer() {
     currentProblem = nextProblem;
     currentAnswer = nextAnswer;
     
-    // Generate a new next problem
     let next = generateProblem();
     nextProblem = next.expression;
     nextAnswer = next.result;
-    console.log('nextAnswer:', nextAnswer); // Debugging: output expected answer
-    console.log('currentAnswer:', currentAnswer); // Debugging: output expected answer
+    console.log('nextAnswer:', nextAnswer);
+    console.log('currentAnswer:', currentAnswer);
 
-    // Display the new problems
     nextProblemElement.innerHTML = `${nextProblem} = ?`;
 }
-
 
 function submitAnswer() {
     let answerPlaceholderElement = document.getElementById('answer-placeholder');
     let userAnswer = parseFloat(answerPlaceholderElement.textContent);
 
-    console.log('Expected:', currentAnswer); // Debugging: output expected answer
-    console.log('User Answer:', userAnswer); // Debugging: output user's answer
+    console.log('Expected:', currentAnswer);
+    console.log('User Answer:', userAnswer);
 
     if (userAnswer === parseFloat(currentAnswer)) {
         resultElement.textContent = 'Correct!';
@@ -242,7 +231,7 @@ function submitAnswer() {
 }
 
 function resetTimer() {
-    clearInterval(timer);
+    clearInterval(timer); // Cancella il timer precedente, se esiste
     timeLeft = timerDuration;
     resultElement.textContent = timeLeft;
     timerElement.style.width = '100%';
@@ -251,20 +240,22 @@ function resetTimer() {
 
 function updateTimer() {
     timeLeft--;
-    timerElement.style.width = ((timeLeft)/timerDuration) * 100 + '%';
+    timerElement.style.width = ((timeLeft) / timerDuration) * 100 + '%';
     resultElement.textContent = timeLeft;
     if (timeLeft <= 0) {
         clearInterval(timer);
         resultElement.textContent = 'Time is up! You lost.';
         setTimeout(endGame, 15);
     }
+    consolo.log('TI')
 }
 
 function addTime(seconds) {
     timeLeft += seconds;
-    // Ensure timeLeft doesn't exceed the initial max value
     if (timeLeft > timerDuration) timeLeft = timerDuration;
-    // Update the timer visuals
+    // If the timer is not already running, start it
+    timer = setInterval(updateTimer, 1000);
+    // Aggiorna solo la barra del timer e il testo
     timerElement.style.width = ((timeLeft) / timerDuration) * 100 + '%';
     resultElement.textContent = timeLeft;
 }
@@ -309,40 +300,6 @@ function applyDisturbance(disturbanceName, frequency) {
     }
 }
 
-/*function applyRandomDisturbance() {
-    if (Math.random() < disturbanceFrequency && isPlaying) {
-      //const disturbanceFunctions = [shakeProblem, flipProblem, hideRandomKey, addSkullButton, randomlyReplaceWithEmoji];
-      const randomIndex = Math.floor(Math.random() * disturbanceType.length);
-      disturbanceType[randomIndex]();
-    }
-}*/
-/*function applyRandomDisturbance() {
-    if (Math.random() < disturbanceFrequency && isPlaying) {
-        const availableDisturbances = disturbanceType.filter(disturbance => {
-            // Escludi i disturbi che interessano tasti già interessati
-            return !Object.keys(keysUnderDisturbance).some(keyId => {
-                return disturbance.name === 'hideRandomKey' && keyId.startsWith('key_') ||
-                       disturbance.name === 'addSkullButton' && keyId.startsWith('key_') ||
-                       disturbance.name === 'swapKeys' && keyId.startsWith('key_');
-            });
-        });
-
-        if (availableDisturbances.length > 0) {
-            const randomIndex = Math.floor(Math.random() * availableDisturbances.length);
-            availableDisturbances[randomIndex]();
-            console.log('Disturbance:', );
-        }
-    }
-}*/
-
-function isKeyUnderDisturbance(keyId) {
-    return keysUnderDisturbance[keyId];
-}
-
-function setKeyDisturbance(keyId, value) {
-    keysUnderDisturbance[keyId] = value;
-}
-
 function shakeProblem() {
     problemElement.style.animation = 'shake 0.5s';
     setTimeout(() => problemElement.style.animation = '', 500);
@@ -351,6 +308,14 @@ function shakeProblem() {
 function flipProblem() {
     problemElement.style.animation = 'flip 1s';
     setTimeout(() => problemElement.style.animation = '', 1000);
+}
+
+function isKeyUnderDisturbance(keyId) {
+    return keysUnderDisturbance[keyId];
+}
+
+function setKeyDisturbance(keyId, value) {
+    keysUnderDisturbance[keyId] = value;
 }
 
 
@@ -378,31 +343,6 @@ function feedTheAnimal() {
         foodElement.classList.add('feed-the-animal-food');
         foodElement.textContent = food;
         foodElement.setAttribute('draggable', true);
-
-        // Aggiungi eventi di trascinamento
-        foodElement.ondragstart = (event) => {
-            event.dataTransfer.setData('text/plain', food);
-            // Nascondi l'elemento originale durante il trascinamento
-            event.target.style.display = 'none'; 
-            
-            // Crea un'immagine dell'emoji che segue il cursore
-            const dragImage = document.createElement('div');
-            dragImage.textContent = food;
-            dragImage.style.position = 'absolute';
-            dragImage.style.fontSize = '3em'; 
-            dragImage.style.pointerEvents = 'none'; 
-            document.body.appendChild(dragImage);
-
-            event.dataTransfer.setDragImage(dragImage, 0, 0); 
-        };
-
-        foodElement.ondragend = (event) => {
-            // Ripristina la visibilità dell'elemento originale
-            event.target.style.display = ''; 
-            // Rimuovi l'immagine di trascinamento
-            document.body.removeChild(document.querySelector('.feed-the-animal-food')); 
-        };
-
         return foodElement;
     });
 
@@ -441,7 +381,35 @@ function feedTheAnimal() {
         }
     };
 
-    document.body.appendChild(overlay);
+    // Aggiungi l'overlay al documento PRIMA di gestire il trascinamento
+    document.body.appendChild(overlay); 
+
+    // Aggiungi eventi di trascinamento
+    foodElements.forEach(foodElement => {
+        foodElement.ondragstart = (event) => {
+            event.dataTransfer.setData('text/plain', food);
+            event.target.style.display = 'none';
+
+            // Crea un'immagine dell'emoji che segue il cursore
+            const dragImage = document.createElement('div');
+            dragImage.textContent = food;
+            dragImage.style.position = 'absolute';
+            dragImage.style.fontSize = '3em';
+            dragImage.style.pointerEvents = 'none';
+
+            // Aggiungi l'immagine di trascinamento all'overlay
+            overlay.appendChild(dragImage); 
+
+            event.dataTransfer.setDragImage(dragImage, 0, 0);
+        };
+
+        foodElement.ondragend = (event) => {
+            event.target.style.display = '';
+
+            // Rimuovi l'immagine di trascinamento dall'overlay
+            overlay.removeChild(overlay.querySelector('.feed-the-animal-food')); 
+        };
+    });
 }
 
 // Funzione per mescolare un array
@@ -480,7 +448,7 @@ function hideRandomKey() {
             randomKey.style.transform = 'rotateY(90deg)';
             setTimeout(() => {
                 resetKey(randomKey, originalText);
-                setKeyDisturbance(keyId, false); // Reimposta lo stato del tasto
+                setKeyDisturbance(keyId, false);
             }, 250);
         }, 3000);
     }
@@ -513,7 +481,7 @@ function addSkullButton() {
                 randomKey.style.transform = 'rotateY(90deg)';
                 setTimeout(() => {
                     resetKey(randomKey, originalText);
-                    setKeyDisturbance(keyId, false); // Reimposta lo stato del tasto
+                    setKeyDisturbance(keyId, false);
                 }, 250);
             }
         }, 3000);
@@ -646,11 +614,10 @@ function resetKeys() {
                 resetKey(keyElement, 0)  
             }
             else {
-                resetKey(keyElement, i); // Reimposta ogni tasto al suo stato originale
+                resetKey(keyElement, i); 
             }
         }
     }
-    // Resetta lo stato dei tasti con disturbi attivi
     keysUnderDisturbance = {}; 
 }
 
@@ -660,9 +627,8 @@ function randomlyReplaceWithEmoji() {
   randomEmojiElement.textContent = randomEmoji;
   randomEmojiElement.classList.add('emoji-overlay');
 
-  // Posizionamento e rotazione random
   const containerRect = problemContainer.getBoundingClientRect();
-  const emojiSize = 50; // Dimensione approssimativa dell'emoji
+  const emojiSize = 50;
   const maxX = containerRect.width - 100 - emojiSize;
   const maxY = containerRect.height - 100 - emojiSize;
   const yFromTop = containerRect.top;
@@ -672,7 +638,6 @@ function randomlyReplaceWithEmoji() {
   randomEmojiElement.style.fontSize = (2.5 + 2 * Math.random()) + 'em';
   randomEmojiElement.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
 
-  // Aggiunta al DOM e gestione del click per rimuovere
   problemContainer.appendChild(randomEmojiElement);
 
   randomEmojiElement.addEventListener('click', () => {
