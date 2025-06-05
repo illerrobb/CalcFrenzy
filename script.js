@@ -673,15 +673,37 @@ function clearAnswer() {
 
 // *** Eventi di Debugging ***
 document.addEventListener('keydown', (event) => {
-    if (event.key >= '1' && event.key <= '9') {
+    if (isPlaying) {
+        if (event.key >= '0' && event.key <= '9' && !event.shiftKey) {
+            // Simula il click sul tasto corrispondente per rispettare eventuali disturbi
+            const keyId = event.key === '0' ? 'key_10' : `key_${event.key}`;
+            const keyElement = document.getElementById(keyId);
+            if (keyElement) {
+                keyElement.click();
+            }
+            return; // Evita che i tasti numerici attivino le funzioni di debug durante il gioco
+        } else if (event.key === 'Enter') {
+            // Invio equivale al tasto OK della calcolatrice
+            submitAnswer();
+            return;
+        } else if (event.key === 'Backspace' || event.key.toLowerCase() === 'c') {
+            // Backspace o 'C' cancellano la risposta
+            clearAnswer();
+            return;
+        }
+    }
+
+    const debugModifierPressed = isPlaying ? event.shiftKey : true;
+
+    if (event.key >= '1' && event.key <= '9' && debugModifierPressed) {
         const disturbanceIndex = parseInt(event.key) - 1;
         const disturbanceName = Object.keys(disturbanceFrequencies)[disturbanceIndex];
         if (disturbanceName) {
             applyDisturbance(disturbanceName, 1); // Forza il disturbo
         }
-    } else if (event.key === '0') {
+    } else if (event.key === '0' && debugModifierPressed) {
         resetTimer();
-    } else if (event.key === '-') {
+    } else if (event.key === '-' && debugModifierPressed) {
         level += 10;
         levelElement.textContent = level;
     }
