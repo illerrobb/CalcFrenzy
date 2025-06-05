@@ -626,10 +626,9 @@ function randomlyReplaceWithEmoji() {
   const emojiSize = 50;
   const maxX = containerRect.width - 100 - emojiSize;
   const maxY = containerRect.height - 100 - emojiSize;
-  const yFromTop = containerRect.top;
 
-  randomEmojiElement.style.left = Math.random() * maxX + yFromTop + 'px';
-  randomEmojiElement.style.top = Math.random() * maxY + yFromTop + 'px';
+  randomEmojiElement.style.left = containerRect.left + Math.random() * maxX + 'px';
+  randomEmojiElement.style.top = containerRect.top + Math.random() * maxY + 'px';
   randomEmojiElement.style.fontSize = (2.5 + 2 * Math.random()) + 'em';
   randomEmojiElement.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
 
