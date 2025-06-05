@@ -673,6 +673,22 @@ function clearAnswer() {
 
 // *** Eventi di Debugging ***
 document.addEventListener('keydown', (event) => {
+    if (isPlaying) {
+        if (event.key >= '0' && event.key <= '9') {
+            // Permette di usare i numeri della tastiera come pulsanti della calcolatrice
+            typeNumber(parseInt(event.key));
+            return; // Evita che i tasti numerici attivino le funzioni di debug
+        } else if (event.key === 'Enter') {
+            // Invio equivale al tasto OK della calcolatrice
+            submitAnswer();
+            return;
+        } else if (event.key === 'Backspace' || event.key.toLowerCase() === 'c') {
+            // Backspace o 'C' cancellano la risposta
+            clearAnswer();
+            return;
+        }
+    }
+
     if (event.key >= '1' && event.key <= '9') {
         const disturbanceIndex = parseInt(event.key) - 1;
         const disturbanceName = Object.keys(disturbanceFrequencies)[disturbanceIndex];
