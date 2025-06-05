@@ -78,6 +78,15 @@ function endGame() {
     isPlaying = false;
 }
 
+function evaluateExpression(expression) {
+    try {
+        const sanitizedExpression = expression.replace(/[^-()\d/*+.]/g, '');
+        return new Function(`return ${sanitizedExpression}`)();
+    } catch (error) {
+        return NaN;
+    }
+}
+
 function generateProblem() {
     const operators = ['+', '-', '*'];
 
@@ -117,14 +126,6 @@ function generateProblem() {
         return `(${innerExpression1}) ${operator} (${innerExpression2})`;
     }
 
-    function evaluateExpression(expression) {
-        try {
-            const sanitizedExpression = expression.replace(/[^-()\d/*+.]/g, '');
-            return new Function(`return ${sanitizedExpression}`)();
-        } catch (error) {
-            return NaN;
-        }
-    }
 
     let expression;
     let result;
@@ -685,3 +686,7 @@ document.addEventListener('keydown', (event) => {
         levelElement.textContent = level;
     }
 });
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { generateProblem, evaluateExpression };
+}
