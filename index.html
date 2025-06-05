@@ -192,6 +192,7 @@
             min-height: 50px;
             margin: 10px;
             font-family: inherit;
+            will-change: transform, opacity;
         }
         
         .emoji-overlay {
@@ -264,6 +265,7 @@
 
         .drop {
             animation: drop ease-in 0.35s forwards;
+            animation-fill-mode: forwards;
         }
         
         @keyframes drop {
