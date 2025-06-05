@@ -625,17 +625,25 @@ function randomlyReplaceWithEmoji() {
 
   const containerRect = problemContainer.getBoundingClientRect();
   const emojiSize = 50;
-  const maxX = containerRect.width - 100 - emojiSize;
-  const maxY = containerRect.height - 100 - emojiSize;
+  const maxX = containerRect.width - emojiSize;
+  const maxY = containerRect.height - emojiSize;
 
-  randomEmojiElement.style.left = containerRect.left + Math.random() * maxX + 'px';
-  randomEmojiElement.style.top = containerRect.top + Math.random() * maxY + 'px';
+  randomEmojiElement.style.left = Math.random() * maxX + 'px';
+  randomEmojiElement.style.top = Math.random() * maxY + 'px';
   randomEmojiElement.style.fontSize = (2.5 + 2 * Math.random()) + 'em';
   randomEmojiElement.style.transform = `rotate(${Math.random() * 90 - 45}deg)`;
 
   problemContainer.appendChild(randomEmojiElement);
 
   randomEmojiElement.addEventListener('click', () => {
+    const bonus = document.createElement('div');
+    bonus.textContent = '+1s';
+    bonus.classList.add('time-bonus');
+    bonus.style.left = '0';
+    bonus.style.top = '-10px';
+    randomEmojiElement.appendChild(bonus);
+    setTimeout(() => bonus.remove(), 800);
+
     randomEmojiElement.style.transition = 'opacity 0.1s ease-out';
     randomEmojiElement.style.opacity = '0';
     setTimeout(() => {
