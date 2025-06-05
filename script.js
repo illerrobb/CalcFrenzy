@@ -189,10 +189,14 @@ function handleCorrectAnswer() {
     problemElement = document.getElementById('problem');
     nextProblemElement = document.getElementById('next-problem');
 
-    problemElement.style.animation = 'drop 0.5s';
-    setTimeout(() => problemElement.style.animation = '', 500);
-    nextProblemElement.style.animation = 'drop 0.5s';
-    setTimeout(() => nextProblemElement.style.animation = '', 500);
+    problemElement.classList.add('drop');
+    nextProblemElement.classList.add('drop');
+    problemElement.addEventListener('animationend', () => {
+        problemElement.classList.remove('drop');
+    }, { once: true });
+    nextProblemElement.addEventListener('animationend', () => {
+        nextProblemElement.classList.remove('drop');
+    }, { once: true });
 
     currentProblem = nextProblem;
     currentAnswer = nextAnswer;
