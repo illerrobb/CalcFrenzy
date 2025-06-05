@@ -675,8 +675,12 @@ function clearAnswer() {
 document.addEventListener('keydown', (event) => {
     if (isPlaying) {
         if (event.key >= '0' && event.key <= '9' && !event.shiftKey) {
-            // Permette di usare i numeri della tastiera come pulsanti della calcolatrice
-            typeNumber(parseInt(event.key));
+            // Simula il click sul tasto corrispondente per rispettare eventuali disturbi
+            const keyId = event.key === '0' ? 'key_10' : `key_${event.key}`;
+            const keyElement = document.getElementById(keyId);
+            if (keyElement) {
+                keyElement.click();
+            }
             return; // Evita che i tasti numerici attivino le funzioni di debug durante il gioco
         } else if (event.key === 'Enter') {
             // Invio equivale al tasto OK della calcolatrice
